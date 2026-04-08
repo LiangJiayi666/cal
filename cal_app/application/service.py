@@ -361,6 +361,27 @@ class CalendarService:
         self.schedules = [item for item in self.schedules if item.task_id != task_id]
         self._save()
 
+    def delete_all_test_tasks(self) -> dict[str, int]:
+        one_time_ids = [task_id for task_id, task in self.one_time_tasks.items() if task.is_test]
+        recurring_ids = [task_id for task_id, task in self.recurring_tasks.items() if task.is_test]
+        deleted_ids = set(one_time_ids) | set(recurring_ids)
+
+        for task_id in one_time_ids:
+            self.one_time_tasks.pop(task_id, None)
+        for task_id in recurring_ids:
+            self.recurring_tasks.pop(task_id, None)
+
+        before = len(self.schedules)
+        self.schedules = [item for item in self.schedules if item.task_id not in deleted_ids]
+        removed_schedules = before - len(self.schedules)
+
+        self._save()
+        return {
+            "one_time": len(one_time_ids),
+            "recurring": len(recurring_ids),
+            "schedules": removed_schedules,
+        }
+
     def set_schedule_status(self, *, task_id: str, schedule_id: int, status: str) -> None:
         validate_status(status)
         schedule = self._find_schedule(task_id, schedule_id)

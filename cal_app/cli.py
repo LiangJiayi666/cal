@@ -54,8 +54,9 @@ def build_parser() -> argparse.ArgumentParser:
     recupd.add_argument("--rp", choices=["d", "w", "m", "y", "day", "week", "month", "year"])
     recupd.add_argument("--iv", type=int)
 
-    delete_task = subparsers.add_parser("del", help="Delete a task (test tasks only).")
-    delete_task.add_argument("--id", required=True, dest="task_id")
+    delete_task = subparsers.add_parser("del", help="Delete test tasks.")
+    delete_task.add_argument("target", nargs="?", help="task id or 'all'")
+    delete_task.add_argument("--id", dest="task_id")
 
     subparsers.add_parser("list", help="List all tasks.")
 
@@ -152,8 +153,20 @@ def main(argv: list[str] | None = None) -> None:
             return
 
         if args.command == "del":
-            service.delete_task(args.task_id)
-            print(f"Deleted task: {args.task_id}")
+            target = args.task_id or args.target
+            if not target:
+                raise DomainError("Please provide a task id, or use 'del all'.")
+            if target == "all":
+                deleted = service.delete_all_test_tasks()
+                print(
+                    "Deleted all test tasks: "
+                    f"one_time={deleted['one_time']}, "
+                    f"recurring={deleted['recurring']}, "
+                    f"schedules={deleted['schedules']}"
+                )
+                return
+            service.delete_task(target)
+            print(f"Deleted task: {target}")
             return
 
         if args.command == "list":
