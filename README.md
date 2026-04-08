@@ -31,43 +31,26 @@ Date format for all date arguments: `YYYY-MM-DD`.
 - IDs are auto-generated 6-char strings using `1-9A-F`.
 - For task updates, schedules are regenerated for that task and previous status is preserved by `(task_id, schedule_id)`.
 
-## Command and parameter map
-
-| Old command | New command |
-|---|---|
-| `task-add-once` | `once` |
-| `task-update-once` | `onceupd` |
-| `task-add-recurring` | `rec` |
-| `task-update-recurring` | `recupd` |
-| `task-delete` | `del` |
-| `task-list` | `list` |
-| `schedule-set-status --status todo` | `todo` |
-| `schedule-set-status --status doing` | `doing` |
-| `schedule-set-status --status done` | `done` |
-| `schedule-list` | `schlist` |
-| `calendar-view` | `view` |
-| `maintenance-run` | `maint` |
-
 ### Common parameter abbreviations
 
-| Parameter | Meaning |
-|---|---|
-| `--id` | task id |
-| `--sid` | schedule id |
-| `--nm` | name |
-| `--ds` | description |
-| `--sd` | start date |
-| `--ed` | end date |
-| `--fs` | first start date |
-| `--fe` | first end date |
-| `--ts` | task start date |
-| `--te` | task end date |
-| `--rp` | repeat unit |
-| `--iv` | interval number (old `n`) |
-| `--tt` | mark as test task |
-| `--fd` | from date |
-| `--td` | to date |
-| `--m` | view mode |
+| Parameter | Meaning                   |
+| --------- | ------------------------- |
+| `--id`    | task id                   |
+| `--sid`   | schedule id               |
+| `--nm`    | name                      |
+| `--ds`    | description               |
+| `--sd`    | start date                |
+| `--ed`    | end date                  |
+| `--fs`    | first start date          |
+| `--fe`    | first end date            |
+| `--ts`    | task start date           |
+| `--te`    | task end date             |
+| `--rp`    | repeat unit               |
+| `--iv`    | interval number (old `n`) |
+| `--tt`    | mark as test task         |
+| `--fd`    | from date                 |
+| `--td`    | to date                   |
+| `--m`     | view mode                 |
 
 ## Command reference
 
@@ -75,13 +58,13 @@ Date format for all date arguments: `YYYY-MM-DD`.
 
 Create a one-time task.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--nm` | Yes | string | - | Task name. |
-| `--ds` | No | string | `""` | Task description. |
-| `--sd` | Yes | date | - | Start date. |
-| `--ed` | Yes | date | - | End date. |
-| `--tt` | No | flag | `False` | Mark as test task. |
+| Parameter | Required | Type   | Default | Description        |
+| --------- | -------- | ------ | ------- | ------------------ |
+| `--nm`    | Yes      | string | -       | Task name.         |
+| `--ds`    | No       | string | `""`    | Task description.  |
+| `--sd`    | Yes      | date   | -       | Start date.        |
+| `--ed`    | Yes      | date   | -       | End date.          |
+| `--tt`    | No       | flag   | `False` | Mark as test task. |
 
 Rule:
 - If `sd > ed`, start is adjusted to end and a note is printed.
@@ -96,13 +79,13 @@ python main.py once --nm "Lecture check" --ds "Find good talks" --sd 2026-04-10 
 
 Update fields of an existing one-time task.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--id` | Yes | string | - | Task ID. |
-| `--nm` | No | string | keep current | New name. |
-| `--ds` | No | string | keep current | New description. |
-| `--sd` | No | date | keep current | New start date. |
-| `--ed` | No | date | keep current | New end date. |
+| Parameter | Required | Type   | Default      | Description      |
+| --------- | -------- | ------ | ------------ | ---------------- |
+| `--id`    | Yes      | string | -            | Task ID.         |
+| `--nm`    | No       | string | keep current | New name.        |
+| `--ds`    | No       | string | keep current | New description. |
+| `--sd`    | No       | date   | keep current | New start date.  |
+| `--ed`    | No       | date   | keep current | New end date.    |
 
 Rule:
 - After update, if `sd > ed`, start is adjusted to end and a note is printed.
@@ -117,17 +100,17 @@ python main.py onceupd --id 123ABC --ed 2026-04-12
 
 Create a recurring task.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--nm` | Yes | string | - | Task name. |
-| `--ds` | No | string | `""` | Task description. |
-| `--fs` | Yes | date | - | First occurrence start date. |
-| `--fe` | Yes | date | - | First occurrence end date. |
-| `--ts` | No | date | `fs` | Recurring task start boundary. |
-| `--te` | No | date | `2100-01-01` | Recurring task end boundary. |
-| `--rp` | Yes | enum | - | Repeat unit: `d/w/m/y` or `day/week/month/year`. |
-| `--iv` | No | int | `1` | Repeat every `iv` units (`>=1`). |
-| `--tt` | No | flag | `False` | Mark as test task. |
+| Parameter | Required | Type   | Default      | Description                                      |
+| --------- | -------- | ------ | ------------ | ------------------------------------------------ |
+| `--nm`    | Yes      | string | -            | Task name.                                       |
+| `--ds`    | No       | string | `""`         | Task description.                                |
+| `--fs`    | Yes      | date   | -            | First occurrence start date.                     |
+| `--fe`    | Yes      | date   | -            | First occurrence end date.                       |
+| `--ts`    | No       | date   | `fs`         | Recurring task start boundary.                   |
+| `--te`    | No       | date   | `2100-01-01` | Recurring task end boundary.                     |
+| `--rp`    | Yes      | enum   | -            | Repeat unit: `d/w/m/y` or `day/week/month/year`. |
+| `--iv`    | No       | int    | `1`          | Repeat every `iv` units (`>=1`).                 |
+| `--tt`    | No       | flag   | `False`      | Mark as test task.                               |
 
 Normalization rules:
 - If `fs > fe`, `fs` is adjusted to `fe`.
@@ -144,17 +127,17 @@ python main.py rec --nm "Weekly check" --fs 2026-04-08 --fe 2026-04-09 --te 2026
 
 Update fields of an existing recurring task.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--id` | Yes | string | - | Task ID. |
-| `--nm` | No | string | keep current | New name. |
-| `--ds` | No | string | keep current | New description. |
-| `--fs` | No | date | keep current | New first start date. |
-| `--fe` | No | date | keep current | New first end date. |
-| `--ts` | No | date | keep current | New task start boundary. |
-| `--te` | No | date | keep current | New task end boundary. |
-| `--rp` | No | enum | keep current | `d/w/m/y` or full words. |
-| `--iv` | No | int | keep current | New interval (`>=1`). |
+| Parameter | Required | Type   | Default      | Description              |
+| --------- | -------- | ------ | ------------ | ------------------------ |
+| `--id`    | Yes      | string | -            | Task ID.                 |
+| `--nm`    | No       | string | keep current | New name.                |
+| `--ds`    | No       | string | keep current | New description.         |
+| `--fs`    | No       | date   | keep current | New first start date.    |
+| `--fe`    | No       | date   | keep current | New first end date.      |
+| `--ts`    | No       | date   | keep current | New task start boundary. |
+| `--te`    | No       | date   | keep current | New task end boundary.   |
+| `--rp`    | No       | enum   | keep current | `d/w/m/y` or full words. |
+| `--iv`    | No       | int    | keep current | New interval (`>=1`).    |
 
 Example:
 
@@ -166,9 +149,9 @@ python main.py recupd --id 123ABC --te 2027-01-01 --rp m --iv 2
 
 Delete a task by ID.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--id` | Yes | string | - | Task ID. |
+| Parameter | Required | Type   | Default | Description |
+| --------- | -------- | ------ | ------- | ----------- |
+| `--id`    | Yes      | string | -       | Task ID.    |
 
 Rule:
 - Only test tasks can be deleted. Non-test tasks return an error.
@@ -193,10 +176,10 @@ python main.py list
 
 Set schedule status directly by command name.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--id` | Yes | string | - | Task ID. |
-| `--sid` | Yes | int | - | Schedule ID. |
+| Parameter | Required | Type   | Default | Description  |
+| --------- | -------- | ------ | ------- | ------------ |
+| `--id`    | Yes      | string | -       | Task ID.     |
+| `--sid`   | Yes      | int    | -       | Schedule ID. |
 
 Examples:
 
@@ -210,9 +193,9 @@ python main.py done --id 123ABC --sid 2
 
 List schedules.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--id` | No | string | all tasks | Filter schedules by task ID. |
+| Parameter | Required | Type   | Default   | Description                  |
+| --------- | -------- | ------ | --------- | ---------------------------- |
+| `--id`    | No       | string | all tasks | Filter schedules by task ID. |
 
 Examples:
 
@@ -225,11 +208,11 @@ python main.py schlist --id 123ABC
 
 Show calendar lines by date and past unfinished schedules.
 
-| Parameter | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `--fd` | No | date | today | View start date. |
-| `--td` | No | date | `fd + 14 days` | View end date (`>= fd`). |
-| `--m` | No | enum | `a` | Mode: `t/todo`, `a/active`, `l/all`. |
+| Parameter | Required | Type | Default        | Description                          |
+| --------- | -------- | ---- | -------------- | ------------------------------------ |
+| `--fd`    | No       | date | today          | View start date.                     |
+| `--td`    | No       | date | `fd + 14 days` | View end date (`>= fd`).             |
+| `--m`     | No       | enum | `a`            | Mode: `t/todo`, `a/active`, `l/all`. |
 
 Examples:
 
