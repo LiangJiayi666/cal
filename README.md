@@ -147,18 +147,23 @@ python main.py recupd --id 123ABC --te 2027-01-01 --rp m --iv 2
 
 ### `del`
 
-Delete a task by ID.
+Delete test tasks (single or bulk).
 
-| Parameter | Required | Type   | Default | Description |
-| --------- | -------- | ------ | ------- | ----------- |
-| `--id`    | Yes      | string | -       | Task ID.    |
+| Parameter | Required | Type   | Default | Description                                |
+| --------- | -------- | ------ | ------- | ------------------------------------------ |
+| `target`  | No       | string | -       | Positional target: task ID or `all`.       |
+| `--id`    | No       | string | -       | Named task ID (same effect as `del <id>`). |
 
 Rule:
-- Only test tasks can be deleted. Non-test tasks return an error.
+- `del all` deletes all test tasks.
+- `del <task_id>` or `del --id <task_id>` deletes one test task.
+- Non-test tasks return an error.
 
 Example:
 
 ```bash
+python main.py del all
+python main.py del 123ABC
 python main.py del --id 123ABC
 ```
 
