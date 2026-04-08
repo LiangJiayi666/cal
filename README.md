@@ -33,24 +33,24 @@ Date format for all date arguments: `YYYY-MM-DD`.
 
 ### Common parameter abbreviations
 
-| Parameter | Meaning                   |
-| --------- | ------------------------- |
-| `--id`    | task id                   |
-| `--sid`   | schedule id               |
-| `--nm`    | name                      |
-| `--ds`    | description               |
-| `--sd`    | start date                |
-| `--ed`    | end date                  |
-| `--fs`    | first start date          |
-| `--fe`    | first end date            |
-| `--ts`    | task start date           |
-| `--te`    | task end date             |
-| `--rp`    | repeat unit               |
-| `--iv`    | interval number (old `n`) |
-| `--tt`    | mark as test task         |
-| `--fd`    | from date                 |
-| `--td`    | to date                   |
-| `--m`     | view mode                 |
+| Parameter | Meaning           |
+| --------- | ----------------- |
+| `--id`    | task id           |
+| `--sid`   | schedule id       |
+| `--nm`    | name              |
+| `--ds`    | description       |
+| `--sd`    | start date        |
+| `--ed`    | end date          |
+| `--fs`    | first start date  |
+| `--fe`    | first end date    |
+| `--ts`    | task start date   |
+| `--te`    | task end date     |
+| `--rp`    | repeat unit       |
+| `--iv`    | interval number   |
+| `--tt`    | mark as test task |
+| `--fd`    | from date         |
+| `--td`    | to date           |
+| `--m`     | view mode         |
 
 ## Command reference
 
