@@ -79,10 +79,12 @@ def build_parser() -> argparse.ArgumentParser:
     view.add_argument("--td", dest="to_date")
     view.add_argument("--m", choices=["t", "a", "l", "todo", "active", "all"], default="a")
 
-    subparsers.add_parser(
+    delay = subparsers.add_parser(
         "delay",
         help="Delay overdue unfinished one-time tasks so their end date becomes today.",
     )
+    delay.add_argument("target", nargs="?", help="task id")
+    delay.add_argument("--id", dest="task_id")
 
     subparsers.add_parser("maint", help="Force run daily maintenance now.")
     return parser
@@ -281,6 +283,13 @@ def main(argv: list[str] | None = None) -> None:
             return
 
         if args.command == "delay":
+            target = _resolve_target(args.task_id, args.target)
+            if target == "all":
+                raise DomainError("Use 'delay' without a task id to delay all overdue one-time tasks.")
+            if target:
+                service.delay_one_time_task_to_today(target)
+                print(f"Delayed one-time task to today: {target}")
+                return
             updated = service.delay_overdue_one_time_tasks_to_today()
             print(f"Delayed overdue one-time tasks to today: {updated}")
             return

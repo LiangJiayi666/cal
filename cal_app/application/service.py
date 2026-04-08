@@ -409,6 +409,25 @@ class CalendarService:
             self._save()
         return updated
 
+    def delay_one_time_task_to_today(self, task_id: str) -> None:
+        if task_id in self.recurring_tasks:
+            raise DomainError("Only one-time tasks can be delayed.")
+        if task_id not in self.one_time_tasks:
+            raise DomainError(f"One-time task not found: {task_id}")
+
+        task = self.one_time_tasks[task_id]
+        schedule = self._find_schedule(task_id, 1)
+        today = self.today_provider()
+
+        if schedule.status == STATUS_DONE:
+            raise DomainError("Completed one-time task cannot be delayed.")
+        if task.end_date >= today:
+            raise DomainError("Only overdue one-time tasks can be delayed to today.")
+
+        task.end_date = today
+        self._sync_task_schedules(task_id)
+        self._save()
+
     def delay_overdue_one_time_tasks_to_today(self) -> int:
         today = self.today_provider()
         yesterday = today - timedelta(days=1)

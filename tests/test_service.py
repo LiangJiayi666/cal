@@ -74,6 +74,37 @@ class CalendarServiceDelayTests(unittest.TestCase):
         self.assertEqual(service.one_time_tasks[task_id].end_date, date(2026, 4, 8))
         self.assertEqual(service._find_schedule(task_id, 1).status, "doing")
 
+    def test_delay_one_time_task_to_today_updates_specific_task(self) -> None:
+        service = self._build_service(date(2026, 4, 8))
+
+        task_id = service.create_one_time_task(
+            name="Specific",
+            description="",
+            start_date_text="2026-04-02",
+            end_date_text="2026-04-06",
+            is_test=True,
+        )["task_id"]
+
+        service.delay_one_time_task_to_today(task_id)
+
+        self.assertEqual(service.one_time_tasks[task_id].end_date, date(2026, 4, 8))
+        self.assertEqual(service._find_schedule(task_id, 1).end_date, date(2026, 4, 8))
+
+    def test_delay_one_time_task_to_today_rejects_done_task(self) -> None:
+        service = self._build_service(date(2026, 4, 8))
+
+        task_id = service.create_one_time_task(
+            name="Done",
+            description="",
+            start_date_text="2026-04-02",
+            end_date_text="2026-04-06",
+            is_test=True,
+        )["task_id"]
+        service.set_schedule_status(task_id=task_id, schedule_id=None, status="done")
+
+        with self.assertRaisesRegex(Exception, "cannot be delayed"):
+            service.delay_one_time_task_to_today(task_id)
+
     def test_view_defaults_to_one_week(self) -> None:
         service = self._build_service(date(2026, 4, 8))
 

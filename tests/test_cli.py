@@ -88,6 +88,34 @@ class CliTodayShortcutTests(unittest.TestCase):
         self.assertIn("2026-04-08 (Wed):", output)
         self.assertNotIn("2026-04-09 (Thu):", output)
 
+    def test_delay_id_updates_specific_one_time_task(self) -> None:
+        task_id = self.service.create_one_time_task(
+            name="Delay me",
+            description="",
+            start_date_text="2026-04-02",
+            end_date_text="2026-04-06",
+            is_test=True,
+        )["task_id"]
+
+        output, _ = self._run_main("delay", "--id", task_id)
+
+        self.assertIn(f"Delayed one-time task to today: {task_id}", output)
+        self.assertEqual(self.service.one_time_tasks[task_id].end_date, self.today)
+
+    def test_delay_positional_id_updates_specific_one_time_task(self) -> None:
+        task_id = self.service.create_one_time_task(
+            name="Delay me too",
+            description="",
+            start_date_text="2026-04-02",
+            end_date_text="2026-04-06",
+            is_test=True,
+        )["task_id"]
+
+        output, _ = self._run_main("delay", task_id)
+
+        self.assertIn(f"Delayed one-time task to today: {task_id}", output)
+        self.assertEqual(self.service.one_time_tasks[task_id].end_date, self.today)
+
 
 if __name__ == "__main__":
     unittest.main()

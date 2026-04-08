@@ -226,16 +226,24 @@ python main.py done all
 
 Delay overdue unfinished one-time tasks to today.
 
-Parameters: none.
+| Parameter | Required | Type   | Default | Description                             |
+| --------- | -------- | ------ | ------- | --------------------------------------- |
+| `target`  | No       | string | -       | Positional one-time task ID.            |
+| `--id`    | No       | string | -       | Named one-time task ID.                 |
 
 Rule:
-- Updates all one-time tasks whose `end_date <= yesterday` and whose schedule status is not `done`.
+- `delay` with no task ID updates all one-time tasks whose `end_date <= yesterday` and whose schedule status is not `done`.
+- `delay <task_id>` and `delay --id <task_id>` delay one overdue one-time task to today.
+- Recurring tasks are not supported.
+- Completed one-time tasks are not supported.
 - Only the end date is changed; task status is preserved.
 
 Example:
 
 ```bash
 python main.py delay
+python main.py delay 123ABC
+python main.py delay --id 123ABC
 ```
 
 ### `schlist`
