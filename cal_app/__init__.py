@@ -1,0 +1,1 @@
+"""Calendar CLI application package."""

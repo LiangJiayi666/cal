@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "last_maintenance": "2026-04-08"
+  },
+  "tasks": {
+    "one_time": [
+      {
+        "kind": "one_time",
+        "task_id": "2268FF",
+        "name": "Lecture check",
+        "description": "Find good talks",
+        "start_date": "2026-04-08",
+        "end_date": "2026-04-08",
+        "is_test": true,
+        "created_date": "2026-04-08"
+      },
+      {
+        "kind": "one_time",
+        "task_id": "829BE5",
+        "name": "Lecture check",
+        "description": "Find good talks",
+        "start_date": "2026-03-08",
+        "end_date": "2026-03-08",
+        "is_test": true,
+        "created_date": "2026-04-08"
+      }
+    ],
+    "recurring": [
+      {
+        "kind": "recurring",
+        "task_id": "E23C14",
+        "name": "Weekly check",
+        "description": "",
+        "first_start_date": "2026-04-08",
+        "first_end_date": "2026-04-09",
+        "task_start_date": "2026-04-08",
+        "task_end_date": "2026-05-01",
+        "repeat_unit": "week",
+        "n": 1,
+        "is_test": true,
+        "created_date": "2026-04-08"
+      }
+    ]
+  },
+  "schedules": [
+    {
+      "task_id": "2268FF",
+      "schedule_id": 1,
+      "name": "Lecture check",
+      "description": "Find good talks",
+      "start_date": "2026-04-08",
+      "end_date": "2026-04-08",
+      "status": "todo"
+    },
+    {
+      "task_id": "829BE5",
+      "schedule_id": 1,
+      "name": "Lecture check",
+      "description": "Find good talks",
+      "start_date": "2026-03-08",
+      "end_date": "2026-03-08",
+      "status": "todo"
+    },
+    {
+      "task_id": "E23C14",
+      "schedule_id": 1,
+      "name": "Weekly check",
+      "description": "",
+      "start_date": "2026-04-08",
+      "end_date": "2026-04-09",
+      "status": "done"
+    },
+    {
+      "task_id": "E23C14",
+      "schedule_id": 2,
+      "name": "Weekly check",
+      "description": "",
+      "start_date": "2026-04-15",
+      "end_date": "2026-04-16",
+      "status": "todo"
+    },
+    {
+      "task_id": "E23C14",
+      "schedule_id": 3,
+      "name": "Weekly check",
+      "description": "",
+      "start_date": "2026-04-22",
+      "end_date": "2026-04-23",
+      "status": "todo"
+    },
+    {
+      "task_id": "E23C14",
+      "schedule_id": 4,
+      "name": "Weekly check",
+      "description": "",
+      "start_date": "2026-04-29",
+      "end_date": "2026-04-30",
+      "status": "todo"
+    }
+  ]
+}
