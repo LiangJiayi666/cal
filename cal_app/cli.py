@@ -18,61 +18,61 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command")
 
-    add_one_time = subparsers.add_parser("task-add-once", help="Create a one-time task.")
-    add_one_time.add_argument("--name", required=True)
-    add_one_time.add_argument("--description", default="")
-    add_one_time.add_argument("--start", required=True, help="YYYY-MM-DD")
-    add_one_time.add_argument("--end", required=True, help="YYYY-MM-DD")
-    add_one_time.add_argument("--test", action="store_true")
+    once = subparsers.add_parser("once", help="Create a one-time task.")
+    once.add_argument("--nm", required=True, help="name")
+    once.add_argument("--ds", default="", help="description")
+    once.add_argument("--sd", required=True, help="start date: YYYY-MM-DD")
+    once.add_argument("--ed", required=True, help="end date: YYYY-MM-DD")
+    once.add_argument("--tt", action="store_true", help="test task")
 
-    update_one_time = subparsers.add_parser("task-update-once", help="Update a one-time task.")
-    update_one_time.add_argument("--id", required=True, dest="task_id")
-    update_one_time.add_argument("--name")
-    update_one_time.add_argument("--description")
-    update_one_time.add_argument("--start", dest="start_date")
-    update_one_time.add_argument("--end", dest="end_date")
+    onceupd = subparsers.add_parser("onceupd", help="Update a one-time task.")
+    onceupd.add_argument("--id", required=True, dest="task_id")
+    onceupd.add_argument("--nm")
+    onceupd.add_argument("--ds")
+    onceupd.add_argument("--sd", dest="start_date")
+    onceupd.add_argument("--ed", dest="end_date")
 
-    add_recurring = subparsers.add_parser("task-add-recurring", help="Create a recurring task.")
-    add_recurring.add_argument("--name", required=True)
-    add_recurring.add_argument("--description", default="")
-    add_recurring.add_argument("--first-start", required=True)
-    add_recurring.add_argument("--first-end", required=True)
-    add_recurring.add_argument("--task-start")
-    add_recurring.add_argument("--task-end")
-    add_recurring.add_argument("--repeat", required=True, choices=["day", "week", "month", "year"])
-    add_recurring.add_argument("--n", type=int, default=1)
-    add_recurring.add_argument("--test", action="store_true")
+    rec = subparsers.add_parser("rec", help="Create a recurring task.")
+    rec.add_argument("--nm", required=True, help="name")
+    rec.add_argument("--ds", default="", help="description")
+    rec.add_argument("--fs", required=True, help="first start date")
+    rec.add_argument("--fe", required=True, help="first end date")
+    rec.add_argument("--ts", help="task start date")
+    rec.add_argument("--te", help="task end date")
+    rec.add_argument("--rp", required=True, choices=["d", "w", "m", "y", "day", "week", "month", "year"])
+    rec.add_argument("--iv", type=int, default=1, help="interval n")
+    rec.add_argument("--tt", action="store_true", help="test task")
 
-    update_recurring = subparsers.add_parser("task-update-recurring", help="Update a recurring task.")
-    update_recurring.add_argument("--id", required=True, dest="task_id")
-    update_recurring.add_argument("--name")
-    update_recurring.add_argument("--description")
-    update_recurring.add_argument("--first-start")
-    update_recurring.add_argument("--first-end")
-    update_recurring.add_argument("--task-start")
-    update_recurring.add_argument("--task-end")
-    update_recurring.add_argument("--repeat", choices=["day", "week", "month", "year"])
-    update_recurring.add_argument("--n", type=int)
+    recupd = subparsers.add_parser("recupd", help="Update a recurring task.")
+    recupd.add_argument("--id", required=True, dest="task_id")
+    recupd.add_argument("--nm")
+    recupd.add_argument("--ds")
+    recupd.add_argument("--fs")
+    recupd.add_argument("--fe")
+    recupd.add_argument("--ts")
+    recupd.add_argument("--te")
+    recupd.add_argument("--rp", choices=["d", "w", "m", "y", "day", "week", "month", "year"])
+    recupd.add_argument("--iv", type=int)
 
-    delete_task = subparsers.add_parser("task-delete", help="Delete a task (test tasks only).")
+    delete_task = subparsers.add_parser("del", help="Delete a task (test tasks only).")
     delete_task.add_argument("--id", required=True, dest="task_id")
 
-    subparsers.add_parser("task-list", help="List all tasks.")
+    subparsers.add_parser("list", help="List all tasks.")
 
-    set_status = subparsers.add_parser("schedule-set-status", help="Set a schedule status.")
-    set_status.add_argument("--task-id", required=True)
-    set_status.add_argument("--schedule-id", required=True, type=int)
-    set_status.add_argument("--status", required=True, choices=["todo", "doing", "done"])
+    for status_cmd in ("todo", "doing", "done"):
+        status_parser = subparsers.add_parser(status_cmd, help=f"Set schedule status to {status_cmd}.")
+        status_parser.add_argument("--id", required=True, dest="task_id")
+        status_parser.add_argument("--sid", required=True, type=int, dest="schedule_id")
 
-    list_schedule = subparsers.add_parser("schedule-list", help="List schedules.")
-    list_schedule.add_argument("--task-id")
+    list_schedule = subparsers.add_parser("schlist", help="List schedules.")
+    list_schedule.add_argument("--id", dest="task_id")
 
-    calendar_view = subparsers.add_parser("calendar-view", help="View schedules grouped by day.")
-    calendar_view.add_argument("--from", dest="from_date")
-    calendar_view.add_argument("--to", dest="to_date")
-    calendar_view.add_argument("--filter", choices=["todo", "active", "all"], default="active")
+    view = subparsers.add_parser("view", help="View schedules grouped by day.")
+    view.add_argument("--fd", dest="from_date")
+    view.add_argument("--td", dest="to_date")
+    view.add_argument("--m", choices=["t", "a", "l", "todo", "active", "all"], default="a")
 
-    subparsers.add_parser("maintenance-run", help="Force run daily maintenance now.")
+    subparsers.add_parser("maint", help="Force run daily maintenance now.")
     return parser
 
 
@@ -87,7 +87,7 @@ def main(argv: list[str] | None = None) -> None:
     service = CalendarService.default(project_root=project_root)
 
     try:
-        if args.command == "maintenance-run":
+        if args.command == "maint":
             maintenance = service.run_daily_maintenance(force=True)
             _print_maintenance(maintenance)
             return
@@ -95,23 +95,23 @@ def main(argv: list[str] | None = None) -> None:
         maintenance = service.run_daily_maintenance_if_needed()
         _print_maintenance(maintenance)
 
-        if args.command == "task-add-once":
+        if args.command == "once":
             result = service.create_one_time_task(
-                name=args.name,
-                description=args.description,
-                start_date_text=args.start,
-                end_date_text=args.end,
-                is_test=args.test,
+                name=args.nm,
+                description=args.ds,
+                start_date_text=args.sd,
+                end_date_text=args.ed,
+                is_test=args.tt,
             )
             print(f"Created one-time task: {result['task_id']}")
             _print_notes(result["notes"])
             return
 
-        if args.command == "task-update-once":
+        if args.command == "onceupd":
             notes = service.update_one_time_task(
                 task_id=args.task_id,
-                name=args.name,
-                description=args.description,
+                name=args.nm,
+                description=args.ds,
                 start_date_text=args.start_date,
                 end_date_text=args.end_date,
             )
@@ -119,44 +119,44 @@ def main(argv: list[str] | None = None) -> None:
             _print_notes(notes)
             return
 
-        if args.command == "task-add-recurring":
+        if args.command == "rec":
             result = service.create_recurring_task(
-                name=args.name,
-                description=args.description,
-                first_start_text=args.first_start,
-                first_end_text=args.first_end,
-                task_start_text=args.task_start,
-                task_end_text=args.task_end,
-                repeat_unit=args.repeat,
-                n=args.n,
-                is_test=args.test,
+                name=args.nm,
+                description=args.ds,
+                first_start_text=args.fs,
+                first_end_text=args.fe,
+                task_start_text=args.ts,
+                task_end_text=args.te,
+                repeat_unit=_normalize_repeat(args.rp),
+                n=args.iv,
+                is_test=args.tt,
             )
             print(f"Created recurring task: {result['task_id']}")
             _print_notes(result["notes"])
             return
 
-        if args.command == "task-update-recurring":
+        if args.command == "recupd":
             notes = service.update_recurring_task(
                 task_id=args.task_id,
-                name=args.name,
-                description=args.description,
-                first_start_text=args.first_start,
-                first_end_text=args.first_end,
-                task_start_text=args.task_start,
-                task_end_text=args.task_end,
-                repeat_unit=args.repeat,
-                n=args.n,
+                name=args.nm,
+                description=args.ds,
+                first_start_text=args.fs,
+                first_end_text=args.fe,
+                task_start_text=args.ts,
+                task_end_text=args.te,
+                repeat_unit=_normalize_repeat(args.rp) if args.rp else None,
+                n=args.iv,
             )
             print(f"Updated recurring task: {args.task_id}")
             _print_notes(notes)
             return
 
-        if args.command == "task-delete":
+        if args.command == "del":
             service.delete_task(args.task_id)
             print(f"Deleted task: {args.task_id}")
             return
 
-        if args.command == "task-list":
+        if args.command == "list":
             tasks = service.list_tasks()
             if not tasks:
                 print("No tasks found.")
@@ -172,16 +172,16 @@ def main(argv: list[str] | None = None) -> None:
                 )
             return
 
-        if args.command == "schedule-set-status":
+        if args.command in {"todo", "doing", "done"}:
             service.set_schedule_status(
                 task_id=args.task_id,
                 schedule_id=args.schedule_id,
-                status=args.status,
+                status=args.command,
             )
-            print(f"Updated schedule status: {args.task_id}#{args.schedule_id} -> {args.status}")
+            print(f"Updated schedule status: {args.task_id}#{args.schedule_id} -> {args.command}")
             return
 
-        if args.command == "schedule-list":
+        if args.command == "schlist":
             schedules = service.list_schedules(task_id=args.task_id)
             if not schedules:
                 print("No schedules found.")
@@ -190,11 +190,11 @@ def main(argv: list[str] | None = None) -> None:
                 print(_format_schedule_line(item))
             return
 
-        if args.command == "calendar-view":
+        if args.command == "view":
             view = service.view_calendar(
                 from_date_text=args.from_date,
                 to_date_text=args.to_date,
-                filter_mode=args.filter,
+                filter_mode=_normalize_view_mode(args.m),
             )
             _print_calendar(view)
             return
@@ -224,6 +224,16 @@ def _print_maintenance(maintenance: dict[str, object]) -> None:
 def _print_notes(notes: list[str]) -> None:
     for note in notes:
         print(f"Note: {note}")
+
+
+def _normalize_repeat(repeat_arg: str) -> str:
+    mapping = {"d": "day", "w": "week", "m": "month", "y": "year"}
+    return mapping.get(repeat_arg, repeat_arg)
+
+
+def _normalize_view_mode(mode_arg: str) -> str:
+    mapping = {"t": "todo", "a": "active", "l": "all"}
+    return mapping.get(mode_arg, mode_arg)
 
 
 def _weekday_name(value: date) -> str:
