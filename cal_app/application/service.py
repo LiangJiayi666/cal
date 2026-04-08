@@ -382,11 +382,57 @@ class CalendarService:
             "schedules": removed_schedules,
         }
 
-    def set_schedule_status(self, *, task_id: str, schedule_id: int, status: str) -> None:
+    def _resolve_schedule_id(self, *, task_id: str, schedule_id: int | None) -> int:
+        if schedule_id is not None:
+            return schedule_id
+        kind = self._find_task_kind(task_id)
+        if kind == TASK_KIND_ONE_TIME:
+            return 1
+        raise DomainError("Recurring task requires --sid.")
+
+    def set_schedule_status(self, *, task_id: str, schedule_id: int | None, status: str) -> int:
         validate_status(status)
-        schedule = self._find_schedule(task_id, schedule_id)
+        resolved_schedule_id = self._resolve_schedule_id(task_id=task_id, schedule_id=schedule_id)
+        schedule = self._find_schedule(task_id, resolved_schedule_id)
         schedule.status = status
         self._save()
+        return resolved_schedule_id
+
+    def mark_overdue_schedules_done(self) -> int:
+        yesterday = self.today_provider() - timedelta(days=1)
+        updated = 0
+        for schedule in self.schedules:
+            if schedule.end_date <= yesterday and schedule.status != STATUS_DONE:
+                schedule.status = STATUS_DONE
+                updated += 1
+        if updated:
+            self._save()
+        return updated
+
+    def delay_overdue_one_time_tasks_to_today(self) -> int:
+        today = self.today_provider()
+        yesterday = today - timedelta(days=1)
+        updated = 0
+
+        for task in list(self.one_time_tasks.values()):
+            if task.end_date > yesterday:
+                continue
+
+            try:
+                schedule = self._find_schedule(task.task_id, 1)
+            except DomainError:
+                continue
+
+            if schedule.status == STATUS_DONE:
+                continue
+
+            task.end_date = today
+            self._sync_task_schedules(task.task_id)
+            updated += 1
+
+        if updated:
+            self._save()
+        return updated
 
     def list_tasks(self) -> list[dict[str, Any]]:
         output: list[dict[str, Any]] = []
@@ -431,7 +477,7 @@ class CalendarService:
     ) -> dict[str, Any]:
         today = self.today_provider()
         from_date = parse_date(from_date_text, "from_date") if from_date_text else today
-        to_date = parse_date(to_date_text, "to_date") if to_date_text else (from_date + timedelta(days=14))
+        to_date = parse_date(to_date_text, "to_date") if to_date_text else (from_date + timedelta(days=6))
         if to_date < from_date:
             raise DomainError("to_date must be greater than or equal to from_date.")
 
