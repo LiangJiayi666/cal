@@ -1,297 +1,94 @@
-# cal
+# cal — 个人日程 CLI 工具
 
-A CLI calendar/task tool with:
+## 简介
 
-- Bottom task pool: one-time tasks and recurring tasks.
-- Middle schedule pool: generated schedules with status (`todo`, `doing`, `done`).
-- Daily maintenance on the first command run each day.
+双层结构：
 
-## Project structure
+- **任务池（task）**：一次性任务 + 周期任务，定义"做什么"
+- **日程池（schedule）**：从任务生成的具体日程，带状态（`todo` / `doing` / `done`）
 
-- `cal_app/domain`: entities, constants, validation, date rules.
-- `cal_app/application`: use cases and schedule generation engine.
-- `cal_app/infrastructure`: JSON persistence.
-- `cal_app/cli.py`: argument parsing and terminal output.
-- `data/state.json`: runtime state storage.
+每天首次运行命令时会自动触发日程维护。
 
-## Quick start
+## 使用方式
 
-Run from `cal/`:
+### 日常操作：用 cal skill（推荐）
+
+在 Claude Code 中直接说自然语言，调用 `/cal` skill 处理日常任务：创建、查询、改状态等。skill 会自动生成确认后再执行。
+
+## 项目结构
+
+```
+cal_app/
+  domain/          实体、常量、校验、日期规则
+  application/     业务逻辑、排程生成引擎
+  infrastructure/  JSON 持久化
+  cli.py           命令行入口
+data/
+  state.json       运行状态存储
+main.py            CLI 入口
+```
+
+## 快速开始
 
 ```bash
 python main.py --help
 ```
 
-Date format for all date arguments: `YYYY-MM-DD`.
+日期格式：`YYYY-MM-DD`，所有日期参数均用此格式。
 
-## Runtime behavior
+## 运行时行为
 
-- All commands except `maint` first trigger "daily maintenance if needed".
-- `maint` forces maintenance even if already run today.
-- IDs are auto-generated 6-char strings using `1-9A-F`.
-- For task updates, schedules are regenerated for that task and previous status is preserved by `(task_id, schedule_id)`.
+- 除 `maint` 外，所有命令首次运行时会触发每日维护
+- `maint` 强制立即执行维护（即使今天已运行）
+- ID 为 6 位字符串，字符集 `1-9A-F`
+- 任务更新后该任务所有 schedule 重新生成，原有 `(task_id, schedule_id)` 的 status 会被保留
 
-### Common parameter abbreviations
+## 命令参考
 
-| Parameter | Meaning           |
-| --------- | ----------------- |
-| `--id`    | task id           |
-| `--sid`   | schedule id       |
-| `--nm`    | name              |
-| `--ds`    | description       |
-| `--sd`    | start date        |
-| `--ed`    | end date          |
-| `--fs`    | first start date  |
-| `--fe`    | first end date    |
-| `--ts`    | task start date   |
-| `--te`    | task end date     |
-| `--rp`    | repeat unit       |
-| `--iv`    | interval number   |
-| `--tt`    | mark as test task |
-| `--fd`    | from date         |
-| `--td`    | to date           |
-| `--m`     | view mode         |
+详细命令参数见 `.claude/skills/cal/SKILL.md`，以下是常用命令速查。
 
-## Command reference
-
-### `once`
-
-Create a one-time task.
-
-| Parameter | Required | Type   | Default | Description        |
-| --------- | -------- | ------ | ------- | ------------------ |
-| `today`   | No       | token  | -       | Shortcut: set `sd=ed=today`. |
-| `--nm`    | Yes      | string | -       | Task name.         |
-| `--ds`    | No       | string | `""`    | Task description.  |
-| `--sd`    | Cond.    | date   | -       | Start date. Required unless using `today`. |
-| `--ed`    | Cond.    | date   | -       | End date. Required unless using `today`. |
-| `--tt`    | No       | flag   | `False` | Mark as test task. |
-
-Rule:
-- If `sd > ed`, start is adjusted to end and a note is printed.
-- `once today` sets both `sd` and `ed` to today.
-- `once today` cannot be combined with `--sd` or `--ed`.
-
-Example:
+### 创建类
 
 ```bash
-python main.py once --nm "Lecture check" --ds "Find good talks" --sd 2026-04-10 --ed 2026-04-08 --tt
-python main.py once today --nm "Quick note"
+# 一次性任务
+python main.py once --nm <名称> --sd <开始> --ed <结束> [--ds <描述>] [--tt]
+python main.py once today --nm <名称>                      # 今天
+
+# 周期任务
+python main.py rec --nm <名称> --fs <首次开始> --fe <首次结束> --rp <单位> [--iv <间隔>]
+python main.py rec today --nm <名称> --rp d                  # 今天开始的每日任务
 ```
 
-### `onceupd`
-
-Update fields of an existing one-time task.
-
-| Parameter | Required | Type   | Default      | Description      |
-| --------- | -------- | ------ | ------------ | ---------------- |
-| `today`   | No       | token  | -            | Shortcut: set `sd=ed=today`. |
-| `--id`    | Yes      | string | -            | Task ID.         |
-| `--nm`    | No       | string | keep current | New name.        |
-| `--ds`    | No       | string | keep current | New description. |
-| `--sd`    | No       | date   | keep current | New start date.  |
-| `--ed`    | No       | date   | keep current | New end date.    |
-
-Rule:
-- After update, if `sd > ed`, start is adjusted to end and a note is printed.
-- `onceupd today` sets both `sd` and `ed` to today.
-- `onceupd today` cannot be combined with `--sd` or `--ed`.
-
-Example:
+### 查询类
 
 ```bash
-python main.py onceupd --id 123ABC --ed 2026-04-12
-python main.py onceupd today --id 123ABC
+python main.py list              # 列出所有任务
+python main.py schlist           # 列出所有日程
+python main.py schlist --id <任务ID>  # 按任务过滤日程
+python main.py view              # 查看日历（默认14天）
+python main.py view today        # 只看今天
+python main.py view --fd <起始> --td <结束> --m l  # 全量模式
 ```
 
-### `rec`
-
-Create a recurring task.
-
-| Parameter | Required | Type   | Default      | Description                                      |
-| --------- | -------- | ------ | ------------ | ------------------------------------------------ |
-| `today`   | No       | token  | -            | Shortcut: set `fs=fe=today`.                     |
-| `--nm`    | Yes      | string | -            | Task name.                                       |
-| `--ds`    | No       | string | `""`         | Task description.                                |
-| `--fs`    | Cond.    | date   | -            | First occurrence start date. Required unless using `today`. |
-| `--fe`    | Cond.    | date   | -            | First occurrence end date. Required unless using `today`. |
-| `--ts`    | No       | date   | `fs`         | Recurring task start boundary.                   |
-| `--te`    | No       | date   | `2100-01-01` | Recurring task end boundary.                     |
-| `--rp`    | Yes      | enum   | -            | Repeat unit: `d/w/m/y` or `day/week/month/year`. |
-| `--iv`    | No       | int    | `1`          | Repeat every `iv` units (`>=1`).                 |
-| `--tt`    | No       | flag   | `False`      | Mark as test task.                               |
-
-Normalization rules:
-- If `fs > fe`, `fs` is adjusted to `fe`.
-- If `te < fe`, `te` is adjusted to `fe`.
-- If `ts > fs`, `ts` is adjusted to `fs`.
-- `rec today` sets both `fs` and `fe` to today.
-- `rec today` cannot be combined with `--fs` or `--fe`.
-
-Example:
+### 修改类
 
 ```bash
-python main.py rec --nm "Weekly check" --fs 2026-04-08 --fe 2026-04-09 --te 2026-05-01 --rp w --iv 1 --tt
-python main.py rec today --nm "Daily check" --rp d
+python main.py todo <任务ID> [--sid <日程ID>]
+python main.py doing <任务ID> --sid <日程ID>
+python main.py done <任务ID> [--sid <日程ID>]
+python main.py done all          # 将昨天及之前未完成的日程全部标记为 done
+python main.py delay             # 将所有过期的一次性任务延期到今天
 ```
 
-### `recupd`
-
-Update fields of an existing recurring task.
-
-| Parameter | Required | Type   | Default      | Description              |
-| --------- | -------- | ------ | ------------ | ------------------------ |
-| `today`   | No       | token  | -            | Shortcut: set `fs=fe=today`. |
-| `--id`    | Yes      | string | -            | Task ID.                 |
-| `--nm`    | No       | string | keep current | New name.                |
-| `--ds`    | No       | string | keep current | New description.         |
-| `--fs`    | No       | date   | keep current | New first start date.    |
-| `--fe`    | No       | date   | keep current | New first end date.      |
-| `--ts`    | No       | date   | keep current | New task start boundary. |
-| `--te`    | No       | date   | keep current | New task end boundary.   |
-| `--rp`    | No       | enum   | keep current | `d/w/m/y` or full words. |
-| `--iv`    | No       | int    | keep current | New interval (`>=1`).    |
-
-Rule:
-- `recupd today` sets both `fs` and `fe` to today.
-- `recupd today` cannot be combined with `--fs` or `--fe`.
-
-Example:
+### 删除类
 
 ```bash
-python main.py recupd --id 123ABC --te 2027-01-01 --rp m --iv 2
-python main.py recupd today --id 123ABC
+python main.py del all           # 删除所有测试任务
+python main.py del <任务ID>       # 删除指定测试任务
 ```
 
-### `del`
-
-Delete test tasks (single or bulk).
-
-| Parameter | Required | Type   | Default | Description                                |
-| --------- | -------- | ------ | ------- | ------------------------------------------ |
-| `target`  | No       | string | -       | Positional target: task ID or `all`.       |
-| `--id`    | No       | string | -       | Named task ID (same effect as `del <id>`). |
-
-Rule:
-- `del all` deletes all test tasks.
-- `del <task_id>` or `del --id <task_id>` deletes one test task.
-- Non-test tasks return an error.
-
-Example:
+### 维护类
 
 ```bash
-python main.py del all
-python main.py del 123ABC
-python main.py del --id 123ABC
-```
-
-### `list`
-
-List all tasks.
-
-Parameters: none.
-
-```bash
-python main.py list
-```
-
-### `todo` / `doing` / `done`
-
-Set schedule status directly by command name.
-
-| Parameter | Required | Type   | Default | Description                                  |
-| --------- | -------- | ------ | ------- | -------------------------------------------- |
-| `target`  | No       | string | -       | Positional task ID, or `all` for `done all`. |
-| `--id`    | No       | string | -       | Named task ID (same as positional target).   |
-| `--sid`   | No       | int    | auto    | Schedule ID. Omit for one-time tasks.        |
-
-Rules:
-- `todo/doing/done <task_id>` and `todo/doing/done --id <task_id>` are both supported.
-- If `--sid` is omitted for a one-time task, it auto-uses `sid=1`.
-- If `--sid` is omitted for a recurring task, command returns an error.
-- `done all` marks all unfinished schedules with `end_date <= yesterday` as `done`.
-
-Examples:
-
-```bash
-python main.py todo 123ABC
-python main.py todo --id 123ABC --sid 2
-python main.py doing --id 123ABC --sid 2
-python main.py done --id 123ABC
-python main.py done --id 123ABC --sid 2
-python main.py done all
-```
-
-### `delay`
-
-Delay overdue unfinished one-time tasks to today.
-
-| Parameter | Required | Type   | Default | Description                             |
-| --------- | -------- | ------ | ------- | --------------------------------------- |
-| `target`  | No       | string | -       | Positional one-time task ID.            |
-| `--id`    | No       | string | -       | Named one-time task ID.                 |
-
-Rule:
-- `delay` with no task ID updates all one-time tasks whose `end_date <= yesterday` and whose schedule status is not `done`.
-- `delay <task_id>` and `delay --id <task_id>` delay one overdue one-time task to today.
-- Recurring tasks are not supported.
-- Completed one-time tasks are not supported.
-- Only the end date is changed; task status is preserved.
-
-Example:
-
-```bash
-python main.py delay
-python main.py delay 123ABC
-python main.py delay --id 123ABC
-```
-
-### `schlist`
-
-List schedules.
-
-| Parameter | Required | Type   | Default   | Description                  |
-| --------- | -------- | ------ | --------- | ---------------------------- |
-| `--id`    | No       | string | all tasks | Filter schedules by task ID. |
-
-Examples:
-
-```bash
-python main.py schlist
-python main.py schlist --id 123ABC
-```
-
-### `view`
-
-Show calendar lines by date and past unfinished schedules.
-
-| Parameter | Required | Type | Default       | Description                          |
-| --------- | -------- | ---- | ------------- | ------------------------------------ |
-| `today`   | No       | token | -            | Shortcut: view only today.           |
-| `--fd`    | No       | date | today         | View start date.                     |
-| `--td`    | No       | date | `fd + 6 days` | View end date (`>= fd`).             |
-| `--m`     | No       | enum | `a`           | Mode: `t/todo`, `a/active`, `l/all`. |
-
-Rules:
-- Default `view` shows one week: `from_date=today`, `to_date=today+6 days`.
-- `view today` shows only today.
-- `view today` cannot be combined with `--fd` or `--td`.
-
-Examples:
-
-```bash
-python main.py view
-python main.py view today
-python main.py view --fd 2026-04-01 --td 2026-04-10 --m l
-python main.py view --m active
-```
-
-### `maint`
-
-Force daily maintenance immediately.
-
-Parameters: none.
-
-```bash
-python main.py maint
+python main.py maint            # 强制运行每日维护
 ```
