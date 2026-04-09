@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cal_app.application.service import CalendarService
-from cal_app.cli import main
+from cal_app.cli import _format_task_ref, _task_color_square, main
 from cal_app.domain.date_utils import format_date
 from cal_app.infrastructure.repository import JsonRepository
 
@@ -88,6 +88,19 @@ class CliTodayShortcutTests(unittest.TestCase):
         self.assertIn("2026-04-08 (Wed):", output)
         self.assertNotIn("2026-04-09 (Thu):", output)
 
+    def test_schlist_shows_colored_task_ref(self) -> None:
+        task_id = self.service.create_one_time_task(
+            name="List me",
+            description="",
+            start_date_text="2026-04-02",
+            end_date_text="2026-04-06",
+            is_test=True,
+        )["task_id"]
+
+        output, _ = self._run_main("schlist", "--id", task_id)
+
+        self.assertIn(f"{_task_color_square(task_id)} [todo] List me (ID: {task_id}, S#1)", output)
+
     def test_delay_id_updates_specific_one_time_task(self) -> None:
         task_id = self.service.create_one_time_task(
             name="Delay me",
@@ -99,7 +112,7 @@ class CliTodayShortcutTests(unittest.TestCase):
 
         output, _ = self._run_main("delay", "--id", task_id)
 
-        self.assertIn(f"Delayed one-time task to today: {task_id}", output)
+        self.assertIn(f"Delayed one-time task to today: {_format_task_ref(task_id)}", output)
         self.assertEqual(self.service.one_time_tasks[task_id].end_date, self.today)
 
     def test_delay_positional_id_updates_specific_one_time_task(self) -> None:
@@ -113,8 +126,14 @@ class CliTodayShortcutTests(unittest.TestCase):
 
         output, _ = self._run_main("delay", task_id)
 
-        self.assertIn(f"Delayed one-time task to today: {task_id}", output)
+        self.assertIn(f"Delayed one-time task to today: {_format_task_ref(task_id)}", output)
         self.assertEqual(self.service.one_time_tasks[task_id].end_date, self.today)
+
+    def test_task_ref_uses_rgb_square(self) -> None:
+        self.assertEqual(
+            _format_task_ref("2C3D61"),
+            "\x1b[38;2;44;61;97m|\x1b[0m 2C3D61",
+        )
 
 
 if __name__ == "__main__":

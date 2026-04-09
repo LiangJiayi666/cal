@@ -11,6 +11,18 @@ from cal_app.domain.errors import DomainError
 from cal_app.domain.models import Schedule
 
 
+def _task_color_square(task_id: str) -> str:
+    red = int(task_id[0:2], 16)
+    green = int(task_id[2:4], 16)
+    blue = int(task_id[4:6], 16)
+    # Stable, portable marker: ASCII bar, colored via truecolor foreground.
+    return f"\x1b[38;2;{red};{green};{blue}m|\x1b[0m"
+
+
+def _format_task_ref(task_id: str) -> str:
+    return f"{_task_color_square(task_id)} {task_id}"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cal",
@@ -128,7 +140,7 @@ def main(argv: list[str] | None = None) -> None:
                 end_date_text=end_date_text,
                 is_test=args.tt,
             )
-            print(f"Created one-time task: {result['task_id']}")
+            print(f"Created one-time task: {_format_task_ref(result['task_id'])}")
             _print_notes(result["notes"])
             return
 
@@ -149,7 +161,7 @@ def main(argv: list[str] | None = None) -> None:
                 start_date_text=start_date_text,
                 end_date_text=end_date_text,
             )
-            print(f"Updated one-time task: {args.task_id}")
+            print(f"Updated one-time task: {_format_task_ref(args.task_id)}")
             _print_notes(notes)
             return
 
@@ -176,7 +188,7 @@ def main(argv: list[str] | None = None) -> None:
                 n=args.iv,
                 is_test=args.tt,
             )
-            print(f"Created recurring task: {result['task_id']}")
+            print(f"Created recurring task: {_format_task_ref(result['task_id'])}")
             _print_notes(result["notes"])
             return
 
@@ -201,7 +213,7 @@ def main(argv: list[str] | None = None) -> None:
                 repeat_unit=_normalize_repeat(args.rp) if args.rp else None,
                 n=args.iv,
             )
-            print(f"Updated recurring task: {args.task_id}")
+            print(f"Updated recurring task: {_format_task_ref(args.task_id)}")
             _print_notes(notes)
             return
 
@@ -219,7 +231,7 @@ def main(argv: list[str] | None = None) -> None:
                 )
                 return
             service.delete_task(target)
-            print(f"Deleted task: {target}")
+            print(f"Deleted task: {_format_task_ref(target)}")
             return
 
         if args.command == "list":
@@ -232,7 +244,7 @@ def main(argv: list[str] | None = None) -> None:
                 if item["kind"] == "recurring":
                     repeat_text = f", repeat={item['n']} {item['repeat_unit']}"
                 print(
-                    f"[{item['kind']}] {item['task_id']} | {item['name']} | "
+                    f"{_task_color_square(item['task_id'])} [{item['kind']}] {item['task_id']} | {item['name']} | "
                     f"{format_date(item['start_date'])} -> {format_date(item['end_date'])}"
                     f"{repeat_text} | test={item['is_test']}"
                 )
@@ -255,7 +267,10 @@ def main(argv: list[str] | None = None) -> None:
                 schedule_id=args.schedule_id,
                 status=args.command,
             )
-            print(f"Updated schedule status: {target}#{resolved_schedule_id} -> {args.command}")
+            print(
+                "Updated schedule status: "
+                f"{_format_task_ref(target)}#{resolved_schedule_id} -> {args.command}"
+            )
             return
 
         if args.command == "schlist":
@@ -288,7 +303,7 @@ def main(argv: list[str] | None = None) -> None:
                 raise DomainError("Use 'delay' without a task id to delay all overdue one-time tasks.")
             if target:
                 service.delay_one_time_task_to_today(target)
-                print(f"Delayed one-time task to today: {target}")
+                print(f"Delayed one-time task to today: {_format_task_ref(target)}")
                 return
             updated = service.delay_overdue_one_time_tasks_to_today()
             print(f"Delayed overdue one-time tasks to today: {updated}")
@@ -377,7 +392,8 @@ def _weekday_name(value: date) -> str:
 
 def _format_schedule_line(item: Schedule) -> str:
     return (
-        f"- [{item.status}] {item.name} (ID: {item.task_id}, S#{item.schedule_id}) - "
+        f"{_task_color_square(item.task_id)} [{item.status}] {item.name} "
+        f"(ID: {item.task_id}, S#{item.schedule_id}) - "
         f"{item.description} [{format_date(item.start_date)} -> {format_date(item.end_date)}]"
     )
 
@@ -395,7 +411,7 @@ def _print_calendar(view: dict[str, object]) -> None:
             continue
         for entry in entries:
             assert isinstance(entry, Schedule)
-            print(f"  {_format_schedule_line(entry)}")
+            print(_format_schedule_line(entry))
 
     overdue = view["overdue"]
     assert isinstance(overdue, list)
@@ -405,4 +421,4 @@ def _print_calendar(view: dict[str, object]) -> None:
     else:
         for item in overdue:
             assert isinstance(item, Schedule)
-            print(f"  {_format_schedule_line(item)}")
+            print(_format_schedule_line(item))
