@@ -1,7 +1,13 @@
 # cal — 个人日程 CLI 工具
 
+## 简介
 
-## 使用方式
+双层结构：
+
+- **任务池（task）**：一次性任务 + 周期任务，定义"做什么"
+- **日程池（schedule）**：从任务生成的具体日程，带状态（`todo` / `doing` / `done`）
+
+每天首次运行命令时会自动触发日程维护。
 
 ## 安装
 
@@ -12,21 +18,23 @@ cd cal
 
 > 所有操作都在项目文件夹 `cal` 内进行。
 
-### 日常操作：用 cal skill（推荐）
-
-在 Claude Code 中直接说自然语言，调用 `/cal` skill 处理日常任务：创建、查询、改状态等。skill 会自动生成确认后再执行。
-
-
-## 命令参考
-
-详细命令参数见 `.claude/skills/cal/SKILL.md`，以下是常用命令速查。
-
+## 快速开始
 
 ```bash
 python main.py --help
 ```
 
 日期格式：`YYYY-MM-DD`，所有日期参数均用此格式。
+
+## 使用方式
+
+### 日常操作：用 cal skill（推荐）
+
+在 Claude Code 中直接说自然语言，调用 `/cal` skill 处理日常任务：创建、查询、改状态等。skill 会自动生成确认后再执行。
+
+### 命令行操作
+
+详细命令参数见 `.claude/skills/cal/SKILL.md`，以下是常用命令速查。
 
 ### 创建类
 
@@ -73,6 +81,7 @@ python main.py del <任务ID>       # 删除指定测试任务
 ```bash
 python main.py maint            # 强制运行每日维护
 ```
+
 ## 项目结构
 
 ```
@@ -85,8 +94,6 @@ data/
   state.json       运行状态存储
 main.py            CLI 入口
 ```
-
-
 
 ## 运行时行为
 
