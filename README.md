@@ -1,60 +1,32 @@
 # cal — 个人日程 CLI 工具
 
-## 简介
-
-双层结构：
-
-- **任务池（task）**：一次性任务 + 周期任务，定义"做什么"
-- **日程池（schedule）**：从任务生成的具体日程，带状态（`todo` / `doing` / `done`）
-
-每天首次运行命令时会自动触发日程维护。
 
 ## 使用方式
+
+## 安装
+
+```bash
+git clone https://github.com/LiangJiayi666/cal.git
+cd cal
+```
+
+> 所有操作都在项目文件夹 `cal` 内进行。
 
 ### 日常操作：用 cal skill（推荐）
 
 在 Claude Code 中直接说自然语言，调用 `/cal` skill 处理日常任务：创建、查询、改状态等。skill 会自动生成确认后再执行。
 
-## 项目结构
 
-```
-cal_app/
-  domain/          实体、常量、校验、日期规则
-  application/     业务逻辑、排程生成引擎
-  infrastructure/  JSON 持久化
-  cli.py           命令行入口
-data/
-  state.json       运行状态存储
-main.py            CLI 入口
-```
+## 命令参考
 
-## 安装
+详细命令参数见 `.claude/skills/cal/SKILL.md`，以下是常用命令速查。
 
-```bash
-git clone https://github.com/LiangJiayi666/cal.git cal_app
-cd cal_app
-```
-
-> 所有操作都在项目文件夹 `cal_app` 内进行。
-
-## 快速开始
 
 ```bash
 python main.py --help
 ```
 
 日期格式：`YYYY-MM-DD`，所有日期参数均用此格式。
-
-## 运行时行为
-
-- 除 `maint` 外，所有命令首次运行时会触发每日维护
-- `maint` 强制立即执行维护（即使今天已运行）
-- ID 为 6 位字符串，字符集 `1-9A-F`
-- 任务更新后该任务所有 schedule 重新生成，原有 `(task_id, schedule_id)` 的 status 会被保留
-
-## 命令参考
-
-详细命令参数见 `.claude/skills/cal/SKILL.md`，以下是常用命令速查。
 
 ### 创建类
 
@@ -101,3 +73,24 @@ python main.py del <任务ID>       # 删除指定测试任务
 ```bash
 python main.py maint            # 强制运行每日维护
 ```
+## 项目结构
+
+```
+cal_app/
+  domain/          实体、常量、校验、日期规则
+  application/     业务逻辑、排程生成引擎
+  infrastructure/  JSON 持久化
+  cli.py           命令行入口
+data/
+  state.json       运行状态存储
+main.py            CLI 入口
+```
+
+
+
+## 运行时行为
+
+- 除 `maint` 外，所有命令首次运行时会触发每日维护
+- `maint` 强制立即执行维护（即使今天已运行）
+- ID 为 6 位字符串，字符集 `1-9A-F`
+- 任务更新后该任务所有 schedule 重新生成，原有 `(task_id, schedule_id)` 的 status 会被保留
