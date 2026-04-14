@@ -28,6 +28,15 @@ data/
 main.py            CLI 入口
 ```
 
+## 安装
+
+```bash
+git clone https://github.com/LiangJiayi666/cal.git cal_app
+cd cal_app
+```
+
+> 所有操作都在项目文件夹 `cal_app` 内进行。
+
 ## 快速开始
 
 ```bash
