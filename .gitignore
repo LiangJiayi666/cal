@@ -5,6 +5,7 @@ data/state.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.understand-anything/
 .coverage
 .coverage.*
 htmlcov/
