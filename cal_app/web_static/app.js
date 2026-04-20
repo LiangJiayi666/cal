@@ -1,5 +1,6 @@
 const state = {
   schedules: [],
+  initializedFilters: false,
 };
 
 const refs = {
@@ -11,6 +12,8 @@ const refs = {
   oneTimeForm: document.querySelector("#oneTimeForm"),
   recurringForm: document.querySelector("#recurringForm"),
   statusFilter: document.querySelector("#statusFilter"),
+  fromDateFilter: document.querySelector("#fromDateFilter"),
+  toDateFilter: document.querySelector("#toDateFilter"),
   searchFilter: document.querySelector("#searchFilter"),
   toast: document.querySelector("#toast"),
 };
@@ -38,10 +41,17 @@ async function api(path, payload) {
 }
 
 function renderSchedules() {
-  const status = refs.statusFilter.value;
+  const statusMode = refs.statusFilter.value;
+  const fromDate = refs.fromDateFilter.value;
+  const toDate = refs.toDateFilter.value;
   const keyword = refs.searchFilter.value.trim().toLowerCase();
+
   const filtered = state.schedules.filter((item) => {
-    if (status && item.status !== status) return false;
+    if (statusMode === "todo" && item.status !== "todo") return false;
+    if (statusMode === "active" && !["todo", "doing"].includes(item.status)) return false;
+    if (fromDate && item.end_date < fromDate) return false;
+    if (toDate && item.start_date > toDate) return false;
+
     if (!keyword) return true;
     return (
       item.name.toLowerCase().includes(keyword) ||
@@ -56,9 +66,7 @@ function renderSchedules() {
       <td class="task-id">${item.task_id}#${item.schedule_id}</td>
       <td>${item.name}</td>
       <td>${item.start_date} -> ${item.end_date}</td>
-      <td>
-        <span class="status-pill status-${item.status}">${item.status}</span>
-      </td>
+      <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>
         <select data-task="${item.task_id}" data-sid="${item.schedule_id}">
           <option value="todo" ${item.status === "todo" ? "selected" : ""}>todo</option>
@@ -74,6 +82,13 @@ function renderSchedules() {
   }
 }
 
+function initFilters(today) {
+  refs.statusFilter.value = "todo";
+  refs.fromDateFilter.value = today;
+  refs.toDateFilter.value = today;
+  state.initializedFilters = true;
+}
+
 async function refresh() {
   const data = await api("/api/overview");
   refs.todayValue.textContent = data.today;
@@ -81,6 +96,10 @@ async function refresh() {
   refs.scheduleCount.textContent = data.counts.schedules;
   refs.overdueCount.textContent = data.counts.overdue;
   state.schedules = data.schedules;
+
+  if (!state.initializedFilters) {
+    initFilters(data.today);
+  }
   renderSchedules();
 }
 
@@ -160,6 +179,8 @@ document.body.addEventListener("click", async (event) => {
 });
 
 refs.statusFilter.addEventListener("change", renderSchedules);
+refs.fromDateFilter.addEventListener("change", renderSchedules);
+refs.toDateFilter.addEventListener("change", renderSchedules);
 refs.searchFilter.addEventListener("input", renderSchedules);
 
 refresh().catch((error) => toast(error.message, "error"));

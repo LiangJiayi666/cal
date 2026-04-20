@@ -42,6 +42,45 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="table-head">
+          <h2>日程列表</h2>
+          <div class="filters">
+            <select id="statusFilter">
+              <option value="todo">todo</option>
+              <option value="active">todo+doing</option>
+              <option value="all">all</option>
+            </select>
+            <input id="fromDateFilter" type="date" />
+            <input id="toDateFilter" type="date" />
+            <input id="searchFilter" placeholder="按任务名或 ID 搜索" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel actions">
+        <h2>快捷操作</h2>
+        <div class="action-row">
+          <button data-action="maintenance">强制维护</button>
+          <button data-action="done-overdue">逾期标记 done</button>
+          <button data-action="delay-overdue">逾期一次性任务延期到今天</button>
+        </div>
+      </section>
+
       <section class="panel-grid">
         <article class="panel">
           <h2>一次性任务</h2>
@@ -89,44 +128,6 @@
             <button type="submit">创建周期任务</button>
           </form>
         </article>
-      </section>
-
-      <section class="panel actions">
-        <h2>快捷操作</h2>
-        <div class="action-row">
-          <button data-action="maintenance">强制维护</button>
-          <button data-action="done-overdue">逾期标记 done</button>
-          <button data-action="delay-overdue">逾期一次性任务延期到今天</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="table-head">
-          <h2>日程列表</h2>
-          <div class="filters">
-            <select id="statusFilter">
-              <option value="">全部状态</option>
-              <option value="todo">todo</option>
-              <option value="doing">doing</option>
-              <option value="done">done</option>
-            </select>
-            <input id="searchFilter" placeholder="按任务名或 ID 搜索" />
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Name</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="scheduleBody"></tbody>
-          </table>
-        </div>
       </section>
 
       <p id="toast" class="toast"></p>
