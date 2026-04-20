@@ -83,6 +83,84 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="table-head">
+          <h2>历史未完成</h2>
+          <span class="muted">结束日期早于今天且状态非 done</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="overdueBody"></tbody>
+          </table>
+        </div>
+        <p id="overdueEmpty" class="muted hidden">暂无历史未完成项</p>
+      </section>
+
+      <section class="panel">
+        <div class="table-head">
+          <h2>任务列表</h2>
+          <span class="muted">支持修改可编辑属性</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Kind</th>
+                <th>Name</th>
+                <th>Window</th>
+                <th>Repeat</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="taskBody"></tbody>
+          </table>
+        </div>
+
+        <form id="taskEditForm" class="task-edit hidden">
+          <h3 id="taskEditTitle">编辑任务</h3>
+          <input type="hidden" id="editTaskId" />
+          <input type="hidden" id="editTaskKind" />
+          <div class="task-edit-grid">
+            <input id="editName" placeholder="任务名称" required />
+            <input id="editDescription" placeholder="描述（可选）" />
+          </div>
+
+          <div id="editOneTimeFields" class="task-edit-grid hidden">
+            <input id="editStartDate" type="date" />
+            <input id="editEndDate" type="date" />
+          </div>
+
+          <div id="editRecurringFields" class="task-edit-grid hidden">
+            <input id="editFirstStartDate" type="date" />
+            <input id="editFirstEndDate" type="date" />
+            <input id="editTaskStartDate" type="date" />
+            <input id="editTaskEndDate" type="date" />
+            <select id="editRepeatUnit">
+              <option value="day">day</option>
+              <option value="week">week</option>
+              <option value="month">month</option>
+              <option value="year">year</option>
+            </select>
+            <input id="editN" type="number" min="1" />
+          </div>
+
+          <div class="inline-actions">
+            <button type="submit" class="mini-btn">保存修改</button>
+            <button id="cancelTaskEditBtn" type="button" class="mini-btn">取消</button>
+          </div>
+        </form>
+      </section>
+
       <section class="panel actions">
         <h2>快捷操作</h2>
         <div class="action-row">

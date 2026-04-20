@@ -23,11 +23,8 @@ def _json_error(message: str, *, code: int = HTTPStatus.BAD_REQUEST) -> tuple[in
     return code, {"error": message}
 
 
-def _serialize_task(task: dict[str, Any]) -> dict[str, Any]:
-    output = dict(task)
-    output["start_date"] = format_date(task["start_date"])
-    output["end_date"] = format_date(task["end_date"])
-    return output
+def _serialize_task_model(task: Any) -> dict[str, Any]:
+    return task.to_dict()
 
 
 def _serialize_schedule(item: Schedule) -> dict[str, Any]:
@@ -36,7 +33,9 @@ def _serialize_schedule(item: Schedule) -> dict[str, Any]:
 
 def _view_overview(service: CalendarService) -> dict[str, Any]:
     service.run_daily_maintenance_if_needed()
-    tasks = [_serialize_task(task) for task in service.list_tasks()]
+    one_time = [_serialize_task_model(task) for task in service.one_time_tasks.values()]
+    recurring = [_serialize_task_model(task) for task in service.recurring_tasks.values()]
+    tasks = sorted(one_time + recurring, key=lambda item: str(item.get("task_id", "")))
     schedules = [_serialize_schedule(item) for item in service.list_schedules()]
     overdue = [_serialize_schedule(item) for item in service.view_calendar(
         from_date_text=None,
@@ -80,6 +79,31 @@ def _run_action(service: CalendarService, path: str, payload: dict[str, Any]) ->
             is_test=bool(payload.get("is_test", False)),
         )
         return HTTPStatus.OK, {"ok": True, "result": result}
+
+    if path == "/api/tasks/one-time/update":
+        notes = service.update_one_time_task(
+            task_id=str(payload.get("task_id", "")),
+            name=payload.get("name"),
+            description=payload.get("description"),
+            start_date_text=payload.get("start_date"),
+            end_date_text=payload.get("end_date"),
+        )
+        return HTTPStatus.OK, {"ok": True, "notes": notes}
+
+    if path == "/api/tasks/recurring/update":
+        n = payload.get("n")
+        notes = service.update_recurring_task(
+            task_id=str(payload.get("task_id", "")),
+            name=payload.get("name"),
+            description=payload.get("description"),
+            first_start_text=payload.get("first_start_date"),
+            first_end_text=payload.get("first_end_date"),
+            task_start_text=payload.get("task_start_date"),
+            task_end_text=payload.get("task_end_date"),
+            repeat_unit=payload.get("repeat_unit"),
+            n=int(n) if n is not None else None,
+        )
+        return HTTPStatus.OK, {"ok": True, "notes": notes}
 
     if path == "/api/schedules/status":
         schedule_id = payload.get("schedule_id")
