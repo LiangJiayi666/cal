@@ -16,7 +16,6 @@ const refs = {
   scheduleBody: document.querySelector("#scheduleBody"),
   overdueBody: document.querySelector("#overdueBody"),
   overdueEmpty: document.querySelector("#overdueEmpty"),
-  taskBody: document.querySelector("#taskBody"),
   taskEditForm: document.querySelector("#taskEditForm"),
   taskEditTitle: document.querySelector("#taskEditTitle"),
   editTaskId: document.querySelector("#editTaskId"),
@@ -120,6 +119,7 @@ function renderStatusEditor(item, prefix) {
       </select>
       <button class="mini-btn" data-save-status="${key}">保存</button>
       <button class="mini-btn" data-mark-done="${item.task_id}" data-sid="${item.schedule_id}" ${item.status === "done" ? "disabled" : ""}>Done</button>
+      <button class="mini-btn" data-edit-task="${item.task_id}">编辑任务</button>
     </div>
   `;
 }
@@ -133,8 +133,8 @@ function renderSchedules() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><input type="checkbox" data-row-check="${key}" ${checked} /></td>
-      <td class="task-id">${item.task_id}#${item.schedule_id}</td>
-      <td>${item.name}</td>
+      <td class="task-id"><button class="mini-btn" data-edit-task="${item.task_id}">${item.task_id}#${item.schedule_id}</button></td>
+      <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>${renderStatusEditor(item, "main")}</td>
@@ -154,34 +154,13 @@ function renderOverdue() {
   for (const item of state.overdueSchedules) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="task-id">${item.task_id}#${item.schedule_id}</td>
-      <td>${item.name}</td>
+      <td class="task-id"><button class="mini-btn" data-edit-task="${item.task_id}">${item.task_id}#${item.schedule_id}</button></td>
+      <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>${renderStatusEditor(item, "overdue")}</td>
     `;
     refs.overdueBody.append(tr);
-  }
-}
-
-function renderTasks() {
-  refs.taskBody.innerHTML = "";
-  for (const task of state.tasks) {
-    const isRecurring = task.kind === "recurring";
-    const windowText = isRecurring
-      ? `${task.task_start_date} -> ${task.task_end_date}`
-      : `${task.start_date} -> ${task.end_date}`;
-    const repeatText = isRecurring ? `${task.n} ${task.repeat_unit}` : "-";
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="task-id">${task.task_id}</td>
-      <td>${task.kind}</td>
-      <td>${task.name}</td>
-      <td>${windowText}</td>
-      <td>${repeatText}</td>
-      <td><button class="mini-btn" data-edit-task="${task.task_id}">编辑</button></td>
-    `;
-    refs.taskBody.append(tr);
   }
 }
 
@@ -212,6 +191,8 @@ function openTaskEditor(taskId) {
     refs.editStartDate.value = task.start_date || "";
     refs.editEndDate.value = task.end_date || "";
   }
+
+  refs.taskEditForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function closeTaskEditor() {
@@ -240,7 +221,6 @@ async function refresh() {
   if (!state.initializedFilters) initFilters(data.today);
   renderSchedules();
   renderOverdue();
-  renderTasks();
 }
 
 async function setScheduleStatus(taskId, sid, status) {
