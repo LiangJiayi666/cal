@@ -222,6 +222,26 @@ button:hover {
   margin-top: 10px;
 }
 
+.table-toolbar {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.muted {
+  color: var(--subtle);
+  font-size: 0.9rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -275,6 +295,20 @@ th {
   border: 1px solid #c9e7d5;
   font-size: 0.9rem;
   padding: 7px 10px;
+  width: auto;
+}
+
+.mini-btn.danger {
+  background: #fff4f4;
+  color: #8c2b2f;
+  border-color: #efc3c5;
+}
+
+.mini-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
 }
 
 .toast {

@@ -56,10 +56,21 @@
             <input id="searchFilter" placeholder="按任务名或 ID 搜索" />
           </div>
         </div>
+
+        <div class="table-toolbar">
+          <div class="inline-actions">
+            <button id="selectVisibleBtn" type="button" class="mini-btn">全选当前结果</button>
+            <button id="clearSelectedBtn" type="button" class="mini-btn">清空选择</button>
+            <button id="markSelectedDoneBtn" type="button" class="mini-btn danger">选中设为 done</button>
+          </div>
+          <span id="selectedCount" class="muted">已选 0 项</span>
+        </div>
+
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
+                <th><input id="selectAllToggle" type="checkbox" /></th>
                 <th>Task</th>
                 <th>Name</th>
                 <th>Date</th>

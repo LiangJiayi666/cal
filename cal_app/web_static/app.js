@@ -1,6 +1,9 @@
 const state = {
   schedules: [],
+  visibleSchedules: [],
+  selectedKeys: new Set(),
   initializedFilters: false,
+  busy: false,
 };
 
 const refs = {
@@ -15,8 +18,17 @@ const refs = {
   fromDateFilter: document.querySelector("#fromDateFilter"),
   toDateFilter: document.querySelector("#toDateFilter"),
   searchFilter: document.querySelector("#searchFilter"),
+  selectVisibleBtn: document.querySelector("#selectVisibleBtn"),
+  clearSelectedBtn: document.querySelector("#clearSelectedBtn"),
+  markSelectedDoneBtn: document.querySelector("#markSelectedDoneBtn"),
+  selectAllToggle: document.querySelector("#selectAllToggle"),
+  selectedCount: document.querySelector("#selectedCount"),
   toast: document.querySelector("#toast"),
 };
+
+function scheduleKey(item) {
+  return `${item.task_id}#${item.schedule_id}`;
+}
 
 function toast(message, tone = "ok") {
   refs.toast.textContent = message;
@@ -40,46 +52,69 @@ async function api(path, payload) {
   return body;
 }
 
-function renderSchedules() {
+function setBusy(value) {
+  state.busy = value;
+  refs.markSelectedDoneBtn.disabled = value;
+}
+
+function filteredSchedules() {
   const statusMode = refs.statusFilter.value;
   const fromDate = refs.fromDateFilter.value;
   const toDate = refs.toDateFilter.value;
   const keyword = refs.searchFilter.value.trim().toLowerCase();
 
-  const filtered = state.schedules.filter((item) => {
+  return state.schedules.filter((item) => {
     if (statusMode === "todo" && item.status !== "todo") return false;
     if (statusMode === "active" && !["todo", "doing"].includes(item.status)) return false;
     if (fromDate && item.end_date < fromDate) return false;
     if (toDate && item.start_date > toDate) return false;
-
     if (!keyword) return true;
     return (
       item.name.toLowerCase().includes(keyword) ||
       item.task_id.toLowerCase().includes(keyword)
     );
   });
+}
 
+function updateSelectionSummary() {
+  refs.selectedCount.textContent = `已选 ${state.selectedKeys.size} 项`;
+
+  if (!state.visibleSchedules.length) {
+    refs.selectAllToggle.checked = false;
+    refs.selectAllToggle.indeterminate = false;
+    return;
+  }
+  const visibleKeys = state.visibleSchedules.map(scheduleKey);
+  const checkedCount = visibleKeys.filter((key) => state.selectedKeys.has(key)).length;
+  refs.selectAllToggle.checked = checkedCount > 0 && checkedCount === visibleKeys.length;
+  refs.selectAllToggle.indeterminate = checkedCount > 0 && checkedCount < visibleKeys.length;
+}
+
+function renderSchedules() {
+  state.visibleSchedules = filteredSchedules();
   refs.scheduleBody.innerHTML = "";
-  for (const item of filtered) {
+
+  for (const item of state.visibleSchedules) {
+    const key = scheduleKey(item);
+    const checked = state.selectedKeys.has(key) ? "checked" : "";
+    const doneDisabled = item.status === "done" ? "disabled" : "";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td><input type="checkbox" data-row-check="${key}" ${checked} /></td>
       <td class="task-id">${item.task_id}#${item.schedule_id}</td>
       <td>${item.name}</td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>
-        <select data-task="${item.task_id}" data-sid="${item.schedule_id}">
-          <option value="todo" ${item.status === "todo" ? "selected" : ""}>todo</option>
-          <option value="doing" ${item.status === "doing" ? "selected" : ""}>doing</option>
-          <option value="done" ${item.status === "done" ? "selected" : ""}>done</option>
-        </select>
-        <button class="mini-btn" data-save="${item.task_id}" data-sid="${item.schedule_id}">
-          保存
+        <button class="mini-btn" data-mark-done="${item.task_id}" data-sid="${item.schedule_id}" ${doneDisabled}>
+          Done
         </button>
       </td>
     `;
     refs.scheduleBody.append(tr);
   }
+  updateSelectionSummary();
 }
 
 function initFilters(today) {
@@ -97,10 +132,40 @@ async function refresh() {
   refs.overdueCount.textContent = data.counts.overdue;
   state.schedules = data.schedules;
 
-  if (!state.initializedFilters) {
-    initFilters(data.today);
-  }
+  if (!state.initializedFilters) initFilters(data.today);
   renderSchedules();
+}
+
+async function setScheduleDone(taskId, sid) {
+  await api("/api/schedules/status", {
+    task_id: taskId,
+    schedule_id: sid,
+    status: "done",
+  });
+}
+
+async function markSelectedDone() {
+  if (!state.selectedKeys.size) {
+    toast("请先选择要完成的日程", "warn");
+    return;
+  }
+  setBusy(true);
+  try {
+    const keyToItem = new Map(state.schedules.map((item) => [scheduleKey(item), item]));
+    const targets = [...state.selectedKeys]
+      .map((key) => keyToItem.get(key))
+      .filter((item) => item && item.status !== "done");
+    await Promise.all(
+      targets.map((item) => setScheduleDone(item.task_id, item.schedule_id)),
+    );
+    state.selectedKeys.clear();
+    await refresh();
+    toast(`已更新 ${targets.length} 项为 done`);
+  } catch (error) {
+    toast(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
 }
 
 function payloadFromForm(form) {
@@ -117,8 +182,7 @@ function payloadFromForm(form) {
 refs.oneTimeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   try {
-    const payload = payloadFromForm(refs.oneTimeForm);
-    await api("/api/tasks/one-time", payload);
+    await api("/api/tasks/one-time", payloadFromForm(refs.oneTimeForm));
     refs.oneTimeForm.reset();
     await refresh();
     toast("一次性任务已创建");
@@ -130,8 +194,7 @@ refs.oneTimeForm.addEventListener("submit", async (event) => {
 refs.recurringForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   try {
-    const payload = payloadFromForm(refs.recurringForm);
-    await api("/api/tasks/recurring", payload);
+    await api("/api/tasks/recurring", payloadFromForm(refs.recurringForm));
     refs.recurringForm.reset();
     await refresh();
     toast("周期任务已创建");
@@ -158,24 +221,56 @@ document.body.addEventListener("click", async (event) => {
     return;
   }
 
-  const saveTask = button.dataset.save;
-  if (!saveTask) return;
-
-  const sid = Number(button.dataset.sid);
-  const select = document.querySelector(`select[data-task="${saveTask}"][data-sid="${sid}"]`);
-  if (!select) return;
-
-  try {
-    await api("/api/schedules/status", {
-      task_id: saveTask,
-      schedule_id: sid,
-      status: select.value,
-    });
-    await refresh();
-    toast("状态已更新");
-  } catch (error) {
-    toast(error.message, "error");
+  if (button.id === "selectVisibleBtn") {
+    for (const item of state.visibleSchedules) state.selectedKeys.add(scheduleKey(item));
+    renderSchedules();
+    return;
   }
+  if (button.id === "clearSelectedBtn") {
+    state.selectedKeys.clear();
+    renderSchedules();
+    return;
+  }
+  if (button.id === "markSelectedDoneBtn") {
+    await markSelectedDone();
+    return;
+  }
+
+  const markDoneTask = button.dataset.markDone;
+  if (markDoneTask) {
+    const sid = Number(button.dataset.sid);
+    setBusy(true);
+    try {
+      await setScheduleDone(markDoneTask, sid);
+      state.selectedKeys.delete(`${markDoneTask}#${sid}`);
+      await refresh();
+      toast("已标记为 done");
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+});
+
+document.body.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("input[type='checkbox'][data-row-check]");
+  if (!checkbox) return;
+
+  const key = checkbox.dataset.rowCheck;
+  if (!key) return;
+  if (checkbox.checked) state.selectedKeys.add(key);
+  else state.selectedKeys.delete(key);
+  updateSelectionSummary();
+});
+
+refs.selectAllToggle.addEventListener("change", () => {
+  if (refs.selectAllToggle.checked) {
+    for (const item of state.visibleSchedules) state.selectedKeys.add(scheduleKey(item));
+  } else {
+    for (const item of state.visibleSchedules) state.selectedKeys.delete(scheduleKey(item));
+  }
+  renderSchedules();
 });
 
 refs.statusFilter.addEventListener("change", renderSchedules);
