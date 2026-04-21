@@ -56,6 +56,12 @@ function scheduleKey(item) {
   return `${item.task_id}#${item.schedule_id}`;
 }
 
+function taskHexColor(taskId) {
+  const text = String(taskId || "").trim();
+  if (/^[0-9a-fA-F]{6}$/.test(text)) return `#${text.toUpperCase()}`;
+  return "#1f8f5f";
+}
+
 function toast(message, tone = "ok") {
   refs.toast.textContent = message;
   refs.toast.className = "toast show";
@@ -133,9 +139,10 @@ function renderSchedules() {
     const key = scheduleKey(item);
     const checked = state.selectedKeys.has(key) ? "checked" : "";
     const tr = document.createElement("tr");
+    const idColor = taskHexColor(item.task_id);
     tr.innerHTML = `
       <td><input type="checkbox" data-row-check="${key}" ${checked} /></td>
-      <td class="task-id"><button class="mini-btn" data-edit-task="${item.task_id}">${item.task_id}#${item.schedule_id}</button></td>
+      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}" data-edit-task="${item.task_id}"><span class="id-swatch" aria-hidden="true"></span><span>${item.task_id}#${item.schedule_id}</span></button></td>
       <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
@@ -155,8 +162,9 @@ function renderOverdue() {
   refs.overdueEmpty.classList.add("hidden");
   for (const item of state.overdueSchedules) {
     const tr = document.createElement("tr");
+    const idColor = taskHexColor(item.task_id);
     tr.innerHTML = `
-      <td class="task-id"><button class="mini-btn" data-edit-task="${item.task_id}">${item.task_id}#${item.schedule_id}</button></td>
+      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}" data-edit-task="${item.task_id}"><span class="id-swatch" aria-hidden="true"></span><span>${item.task_id}#${item.schedule_id}</span></button></td>
       <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
@@ -168,6 +176,7 @@ function renderOverdue() {
 
 function resetOneTimeEditor() {
   refs.eoTaskId.value = "";
+  refs.eoTaskId.style.removeProperty("--id-color");
   refs.eoName.value = "";
   refs.eoDescription.value = "";
   refs.eoStartDate.value = "";
@@ -176,6 +185,7 @@ function resetOneTimeEditor() {
 
 function resetRecurringEditor() {
   refs.erTaskId.value = "";
+  refs.erTaskId.style.removeProperty("--id-color");
   refs.erName.value = "";
   refs.erDescription.value = "";
   refs.erFirstStartDate.value = "";
@@ -194,6 +204,7 @@ function openTaskEditor(taskId) {
   }
   if (task.kind === "one_time") {
     refs.eoTaskId.value = task.task_id;
+    refs.eoTaskId.style.setProperty("--id-color", taskHexColor(task.task_id));
     refs.eoName.value = task.name || "";
     refs.eoDescription.value = task.description || "";
     refs.eoStartDate.value = task.start_date || "";
@@ -203,6 +214,7 @@ function openTaskEditor(taskId) {
   }
 
   refs.erTaskId.value = task.task_id;
+  refs.erTaskId.style.setProperty("--id-color", taskHexColor(task.task_id));
   refs.erName.value = task.name || "";
   refs.erDescription.value = task.description || "";
   refs.erFirstStartDate.value = task.first_start_date || "";
