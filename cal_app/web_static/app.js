@@ -36,6 +36,8 @@ const refs = {
   erN: document.querySelector("#erN"),
   clearEditOneTimeBtn: document.querySelector("#clearEditOneTimeBtn"),
   clearEditRecurringBtn: document.querySelector("#clearEditRecurringBtn"),
+  clearCreateOneTimeBtn: document.querySelector("#clearCreateOneTimeBtn"),
+  clearCreateRecurringBtn: document.querySelector("#clearCreateRecurringBtn"),
   oneTimeForm: document.querySelector("#oneTimeForm"),
   recurringForm: document.querySelector("#recurringForm"),
   statusFilter: document.querySelector("#statusFilter"),
@@ -363,6 +365,16 @@ refs.editRecurringForm.addEventListener("submit", async (event) => {
 
 refs.clearEditOneTimeBtn.addEventListener("click", resetOneTimeEditor);
 refs.clearEditRecurringBtn.addEventListener("click", resetRecurringEditor);
+
+refs.clearCreateOneTimeBtn.addEventListener("click", () => {
+  refs.oneTimeForm.reset();
+  toast("已清空创建区");
+});
+
+refs.clearCreateRecurringBtn.addEventListener("click", () => {
+  refs.recurringForm.reset();
+  toast("已清空创建区");
+});
 
 document.body.addEventListener("click", async (event) => {
   const button = event.target.closest("button");

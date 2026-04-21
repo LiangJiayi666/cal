@@ -203,7 +203,7 @@
 
       <section class="panel-grid">
         <article class="panel">
-          <h2>一次性任务</h2>
+          <h2>创建一次性任务</h2>
           <form id="oneTimeForm" class="form-stack">
             <label class="field-label" for="createOneName">任务名称</label>
             <input id="createOneName" name="name" placeholder="任务名称" required />
@@ -226,12 +226,15 @@
               <input name="is_test" type="checkbox" />
               <span>测试任务</span>
             </label>
-            <button type="submit">创建一次性任务</button>
+            <div class="inline-actions">
+              <button type="submit" class="mini-btn">保存一次性任务</button>
+              <button id="clearCreateOneTimeBtn" type="button" class="mini-btn">清空</button>
+            </div>
           </form>
         </article>
 
         <article class="panel">
-          <h2>周期任务</h2>
+          <h2>创建周期任务</h2>
           <form id="recurringForm" class="form-stack">
             <label class="field-label" for="createRecName">任务名称</label>
             <input id="createRecName" name="name" placeholder="任务名称" required />
@@ -281,7 +284,10 @@
               <input name="is_test" type="checkbox" />
               <span>测试任务</span>
             </label>
-            <button type="submit">创建周期任务</button>
+            <div class="inline-actions">
+              <button type="submit" class="mini-btn">保存周期任务</button>
+              <button id="clearCreateRecurringBtn" type="button" class="mini-btn">清空</button>
+            </div>
           </form>
         </article>
       </section>
