@@ -1,15 +1,26 @@
 :root {
-  --bg: #f6f7f2;
-  --ink: #1f2a1f;
-  --subtle: #4e5a4f;
+  /* Palette: lilac + sky + butter + wine + blush */
+  --bg: #f7f3ff;
+  --ink: #1c1830;
+  --subtle: #4f4a6b;
   --panel: rgba(255, 255, 255, 0.78);
-  --line: rgba(42, 55, 43, 0.18);
-  --accent: #1f8f5f;
-  --accent-ink: #0f4c32;
-  --warn: #c17b1b;
-  --danger: #b13238;
+  --line: rgba(40, 24, 68, 0.16);
+
+  /* Primary (soft periwinkle) */
+  --accent: #6e63ff;
+  --accent-ink: #332d73;
+
+  /* Secondary / highlights */
+  --sky: #3a8dff;
+  --butter: #ffd36b;
+  --blush: #ff7fb2;
+
+  /* Semantic */
+  --warn: #c98b17;
+  --danger: #8c1f46;
+
   --radius: 22px;
-  --shadow: 0 20px 70px rgba(40, 58, 47, 0.14);
+  --shadow: 0 20px 70px rgba(37, 24, 68, 0.14);
 }
 
 * {
@@ -19,8 +30,9 @@
 body {
   margin: 0;
   font-family: "Manrope", "Segoe UI", sans-serif;
-  background: radial-gradient(circle at 5% 10%, #d9efe1 0%, transparent 44%),
-    radial-gradient(circle at 88% 0%, #f5d9c9 0%, transparent 35%), var(--bg);
+  background: radial-gradient(circle at 6% 8%, rgba(110, 99, 255, 0.18) 0%, transparent 48%),
+    radial-gradient(circle at 92% 10%, rgba(255, 127, 178, 0.16) 0%, transparent 40%),
+    radial-gradient(circle at 60% 98%, rgba(255, 211, 107, 0.16) 0%, transparent 46%), var(--bg);
   color: var(--ink);
   min-height: 100vh;
 }
@@ -36,7 +48,7 @@ body {
 .orb-a {
   width: 420px;
   height: 420px;
-  background: rgba(59, 176, 119, 0.25);
+  background: rgba(110, 99, 255, 0.24);
   top: -120px;
   left: -110px;
 }
@@ -44,7 +56,7 @@ body {
 .orb-b {
   width: 340px;
   height: 340px;
-  background: rgba(232, 132, 62, 0.24);
+  background: rgba(255, 127, 178, 0.22);
   right: -70px;
   bottom: -80px;
 }
@@ -58,7 +70,7 @@ body {
 
 .hero {
   border: 1px solid var(--line);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(231, 241, 234, 0.74));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(238, 236, 255, 0.68));
   border-radius: calc(var(--radius) + 8px);
   box-shadow: var(--shadow);
   padding: 22px;
@@ -70,7 +82,7 @@ body {
 
 .eyebrow {
   margin: 0;
-  color: var(--accent-ink);
+  color: rgba(51, 45, 115, 0.92);
   font-family: "Space Grotesk", sans-serif;
   letter-spacing: 0.08em;
   font-size: 0.82rem;
@@ -118,6 +130,10 @@ h2 {
 
 .metric-card strong {
   font-size: 1.24rem;
+  background: linear-gradient(90deg, rgba(110, 99, 255, 0.95), rgba(58, 141, 255, 0.95), rgba(255, 127, 178, 0.9));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .panel-grid {
@@ -156,7 +172,7 @@ button {
   border-radius: 12px;
   padding: 10px 12px;
   font: inherit;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 textarea {
@@ -164,8 +180,17 @@ textarea {
   resize: vertical;
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid rgba(58, 141, 255, 0.35);
+  outline-offset: 2px;
+  border-color: rgba(58, 141, 255, 0.5);
+  box-shadow: 0 14px 32px rgba(58, 141, 255, 0.12);
+}
+
 button {
-  background: linear-gradient(135deg, #2fa36f, #197f54);
+  background: linear-gradient(135deg, var(--accent), var(--sky));
   color: #fff;
   border: 0;
   font-weight: 700;
@@ -264,27 +289,27 @@ th {
 .task-id {
   font-family: "Space Grotesk", sans-serif;
   letter-spacing: 0.04em;
-  color: var(--accent-ink);
+  color: rgba(51, 45, 115, 0.95);
 }
 
 .id-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: inset 3px 0 0 var(--id-color, rgba(31, 143, 95, 0.6));
+  box-shadow: inset 3px 0 0 var(--id-color, rgba(110, 99, 255, 0.6));
 }
 
 .id-swatch {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: var(--id-color, rgba(31, 143, 95, 0.6));
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 10px 18px rgba(32, 50, 40, 0.12);
+  background: var(--id-color, rgba(110, 99, 255, 0.6));
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 10px 18px rgba(28, 24, 48, 0.12);
   flex: none;
 }
 
 .id-readonly {
-  background: linear-gradient(90deg, var(--id-color, rgba(31, 143, 95, 0.35)) 0 10px, rgba(255, 255, 255, 0.88) 10px);
+  background: linear-gradient(90deg, var(--id-color, rgba(110, 99, 255, 0.35)) 0 10px, rgba(255, 255, 255, 0.9) 10px);
 }
 
 .status-pill {
@@ -298,30 +323,30 @@ th {
 }
 
 .status-todo {
-  background: #97703c;
+  background: #b07b12;
 }
 
 .status-doing {
-  background: #256da6;
+  background: #2e74d8;
 }
 
 .status-done {
-  background: #2a8a54;
+  background: #6a55d8;
 }
 
 .mini-btn {
-  background: #eef8f2;
-  color: #15563a;
-  border: 1px solid #c9e7d5;
+  background: rgba(110, 99, 255, 0.08);
+  color: rgba(51, 45, 115, 0.95);
+  border: 1px solid rgba(110, 99, 255, 0.24);
   font-size: 0.9rem;
   padding: 7px 10px;
   width: auto;
 }
 
 .mini-btn.danger {
-  background: #fff4f4;
-  color: #8c2b2f;
-  border-color: #efc3c5;
+  background: rgba(140, 31, 70, 0.08);
+  color: rgba(140, 31, 70, 0.96);
+  border-color: rgba(140, 31, 70, 0.22);
 }
 
 .mini-btn:disabled {
@@ -381,8 +406,8 @@ th {
   left: 50%;
   bottom: 20px;
   transform: translateX(-50%) translateY(10px);
-  background: rgba(22, 40, 31, 0.95);
-  color: #f4faf7;
+  background: rgba(29, 20, 56, 0.92);
+  color: rgba(255, 255, 255, 0.92);
   padding: 10px 14px;
   border-radius: 999px;
   opacity: 0;
@@ -396,11 +421,12 @@ th {
 }
 
 .toast.warn {
-  background: rgba(156, 87, 16, 0.95);
+  background: rgba(201, 139, 23, 0.92);
+  color: rgba(28, 24, 48, 0.92);
 }
 
 .toast.error {
-  background: rgba(143, 23, 23, 0.95);
+  background: rgba(140, 31, 70, 0.92);
 }
 
 @keyframes rise {
