@@ -59,7 +59,31 @@ function scheduleKey(item) {
 function taskHexColor(taskId) {
   const text = String(taskId || "").trim();
   if (/^[0-9a-fA-F]{6}$/.test(text)) return `#${text.toUpperCase()}`;
-  return "#1f8f5f";
+  return "#6e63ff";
+}
+
+function taskRgbTriplet(taskId) {
+  const hex = taskHexColor(taskId).replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  if ([r, g, b].some((x) => Number.isNaN(x))) return "110, 99, 255";
+  return `${r}, ${g}, ${b}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function snippetHtml(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  return escapeHtml(text).replaceAll("\n", "<br />");
 }
 
 function toast(message, tone = "ok") {
@@ -127,7 +151,6 @@ function renderStatusEditor(item, prefix) {
       </select>
       <button class="mini-btn" data-save-status="${key}">保存</button>
       <button class="mini-btn" data-mark-done="${item.task_id}" data-sid="${item.schedule_id}" ${item.status === "done" ? "disabled" : ""}>Done</button>
-      <button class="mini-btn" data-edit-task="${item.task_id}">编辑任务</button>
     </div>
   `;
 }
@@ -140,10 +163,11 @@ function renderSchedules() {
     const checked = state.selectedKeys.has(key) ? "checked" : "";
     const tr = document.createElement("tr");
     const idColor = taskHexColor(item.task_id);
+    const idRgb = taskRgbTriplet(item.task_id);
     tr.innerHTML = `
       <td><input type="checkbox" data-row-check="${key}" ${checked} /></td>
-      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}" data-edit-task="${item.task_id}"><span class="id-swatch" aria-hidden="true"></span><span>${item.task_id}#${item.schedule_id}</span></button></td>
-      <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
+      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}; --id-color-rgb:${idRgb}" data-edit-task="${item.task_id}"><span>${item.task_id}#${item.schedule_id}</span></button></td>
+      <td><div class="name-stack"><div class="name-title">${escapeHtml(item.name)}</div><div class="desc-snippet">${snippetHtml(item.description)}</div></div></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>${renderStatusEditor(item, "main")}</td>
@@ -163,9 +187,10 @@ function renderOverdue() {
   for (const item of state.overdueSchedules) {
     const tr = document.createElement("tr");
     const idColor = taskHexColor(item.task_id);
+    const idRgb = taskRgbTriplet(item.task_id);
     tr.innerHTML = `
-      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}" data-edit-task="${item.task_id}"><span class="id-swatch" aria-hidden="true"></span><span>${item.task_id}#${item.schedule_id}</span></button></td>
-      <td><button class="mini-btn" data-edit-task="${item.task_id}">${item.name}</button></td>
+      <td class="task-id"><button class="mini-btn id-btn" style="--id-color:${idColor}; --id-color-rgb:${idRgb}" data-edit-task="${item.task_id}"><span>${item.task_id}#${item.schedule_id}</span></button></td>
+      <td><div class="name-stack"><div class="name-title">${escapeHtml(item.name)}</div><div class="desc-snippet">${snippetHtml(item.description)}</div></div></td>
       <td>${item.start_date} -> ${item.end_date}</td>
       <td><span class="status-pill status-${item.status}">${item.status}</span></td>
       <td>${renderStatusEditor(item, "overdue")}</td>
@@ -177,6 +202,7 @@ function renderOverdue() {
 function resetOneTimeEditor() {
   refs.eoTaskId.value = "";
   refs.eoTaskId.style.removeProperty("--id-color");
+  refs.eoTaskId.style.removeProperty("--id-color-rgb");
   refs.eoName.value = "";
   refs.eoDescription.value = "";
   refs.eoStartDate.value = "";
@@ -186,6 +212,7 @@ function resetOneTimeEditor() {
 function resetRecurringEditor() {
   refs.erTaskId.value = "";
   refs.erTaskId.style.removeProperty("--id-color");
+  refs.erTaskId.style.removeProperty("--id-color-rgb");
   refs.erName.value = "";
   refs.erDescription.value = "";
   refs.erFirstStartDate.value = "";
@@ -205,6 +232,7 @@ function openTaskEditor(taskId) {
   if (task.kind === "one_time") {
     refs.eoTaskId.value = task.task_id;
     refs.eoTaskId.style.setProperty("--id-color", taskHexColor(task.task_id));
+    refs.eoTaskId.style.setProperty("--id-color-rgb", taskRgbTriplet(task.task_id));
     refs.eoName.value = task.name || "";
     refs.eoDescription.value = task.description || "";
     refs.eoStartDate.value = task.start_date || "";
@@ -215,6 +243,7 @@ function openTaskEditor(taskId) {
 
   refs.erTaskId.value = task.task_id;
   refs.erTaskId.style.setProperty("--id-color", taskHexColor(task.task_id));
+  refs.erTaskId.style.setProperty("--id-color-rgb", taskRgbTriplet(task.task_id));
   refs.erName.value = task.name || "";
   refs.erDescription.value = task.description || "";
   refs.erFirstStartDate.value = task.first_start_date || "";
@@ -227,7 +256,7 @@ function openTaskEditor(taskId) {
 }
 
 function initFilters(today) {
-  refs.statusFilter.value = "todo";
+  refs.statusFilter.value = "active";
   refs.fromDateFilter.value = today;
   refs.toDateFilter.value = today;
   state.initializedFilters = true;
@@ -326,6 +355,11 @@ refs.editOneTimeForm.addEventListener("submit", async (event) => {
     toast("请先点击一个一次性任务", "warn");
     return;
   }
+  const oneTimeTarget = state.tasks.find((item) => item.task_id === taskId && item.kind === "one_time");
+  if (!oneTimeTarget) {
+    toast("任务编号必须是已存在的一次性任务编号（从列表点 Task 进入）", "warn");
+    return;
+  }
   setBusy(true);
   try {
     await api("/api/tasks/one-time/update", {
@@ -350,6 +384,11 @@ refs.editRecurringForm.addEventListener("submit", async (event) => {
   const taskId = refs.erTaskId.value;
   if (!taskId) {
     toast("请先点击一个周期任务", "warn");
+    return;
+  }
+  const recurringTarget = state.tasks.find((item) => item.task_id === taskId && item.kind === "recurring");
+  if (!recurringTarget) {
+    toast("任务编号必须是已存在的周期任务编号（从列表点 Task 进入）", "warn");
     return;
   }
   setBusy(true);

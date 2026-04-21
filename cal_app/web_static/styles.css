@@ -203,6 +203,15 @@ button:hover {
   filter: brightness(1.06);
 }
 
+.mini-btn:hover,
+.mini-btn:active,
+.mini-btn:focus-visible,
+.mini-btn.id-btn:hover,
+.mini-btn.id-btn:active {
+  transform: none;
+  filter: none;
+}
+
 .check {
   display: inline-flex;
   align-items: center;
@@ -292,24 +301,47 @@ th {
   color: rgba(51, 45, 115, 0.95);
 }
 
-.id-btn {
+.mini-btn.id-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: inset 3px 0 0 var(--id-color, rgba(110, 99, 255, 0.6));
-}
-
-.id-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--id-color, rgba(110, 99, 255, 0.6));
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 10px 18px rgba(28, 24, 48, 0.12);
-  flex: none;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.62);
+  border-color: rgba(var(--id-color-rgb, 110, 99, 255), 0.42);
+  box-shadow: none;
+  border-left-width: 10px;
+  border-left-style: solid;
+  border-left-color: rgba(var(--id-color-rgb, 110, 99, 255), 0.9);
+  padding-left: 10px;
 }
 
 .id-readonly {
-  background: linear-gradient(90deg, var(--id-color, rgba(110, 99, 255, 0.35)) 0 10px, rgba(255, 255, 255, 0.9) 10px);
+  background: linear-gradient(
+    90deg,
+    rgba(var(--id-color-rgb, 110, 99, 255), 0.5) 0 12px,
+    rgba(255, 255, 255, 0.9) 12px
+  );
+}
+
+.name-title {
+  font-weight: 800;
+  color: rgba(28, 24, 48, 0.94);
+  line-height: 1.15;
+}
+
+.name-stack {
+  display: grid;
+  gap: 6px;
+}
+
+.desc-snippet {
+  color: rgba(79, 74, 107, 0.92);
+  font-size: 0.92rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: normal;
 }
 
 .status-pill {
