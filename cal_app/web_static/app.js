@@ -272,7 +272,9 @@ function payloadFromForm(form) {
   const fd = new FormData(form);
   const obj = Object.fromEntries(fd.entries());
   for (const [key, value] of Object.entries(obj)) {
-    if (value === "") obj[key] = null;
+    // For create-task forms, empty description should stay as "" (not null),
+    // otherwise backend `str(None)` becomes "None".
+    if (value === "" && key !== "description") obj[key] = null;
   }
   obj.is_test = fd.get("is_test") === "on";
   if ("n" in obj && obj.n !== null) obj.n = Number(obj.n);

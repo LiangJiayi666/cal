@@ -109,7 +109,8 @@
         <article class="panel" id="editOneTimePanel">
           <h2>编辑一次性任务</h2>
           <form id="editOneTimeForm" class="form-stack">
-            <input type="hidden" id="eoTaskId" />
+            <label class="field-label" for="eoTaskId">任务编号（不可修改）</label>
+            <input id="eoTaskId" readonly />
             <label class="field-label" for="eoName">任务名称</label>
             <input id="eoName" placeholder="任务名称" required />
 
@@ -137,7 +138,8 @@
         <article class="panel" id="editRecurringPanel">
           <h2>编辑周期任务</h2>
           <form id="editRecurringForm" class="form-stack">
-            <input type="hidden" id="erTaskId" />
+            <label class="field-label" for="erTaskId">任务编号（不可修改）</label>
+            <input id="erTaskId" readonly />
             <label class="field-label" for="erName">任务名称</label>
             <input id="erName" placeholder="任务名称" required />
 
