@@ -27,6 +27,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cal",
         description="Task pool + schedule pool calendar CLI.",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=(
+            "Web UI (optional):\n"
+            "  python -m cal_app.web\n"
+            "  then open http://127.0.0.1:8765\n"
+        ),
     )
     subparsers = parser.add_subparsers(dest="command")
 
