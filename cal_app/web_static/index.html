@@ -57,15 +57,6 @@
           </div>
         </div>
 
-        <div class="table-toolbar">
-          <div class="inline-actions">
-            <button id="selectVisibleBtn" type="button" class="mini-btn">全选当前结果</button>
-            <button id="clearSelectedBtn" type="button" class="mini-btn">清空选择</button>
-            <button id="markSelectedDoneBtn" type="button" class="mini-btn danger">选中设为 done</button>
-          </div>
-          <span id="selectedCount" class="muted">已选 0 项</span>
-        </div>
-
         <div class="table-wrap">
           <table>
             <thead>
@@ -80,6 +71,15 @@
             </thead>
             <tbody id="scheduleBody"></tbody>
           </table>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="inline-actions">
+            <button id="selectVisibleBtn" type="button" class="mini-btn">全选当前结果</button>
+            <button id="clearSelectedBtn" type="button" class="mini-btn">清空选择</button>
+            <button id="markSelectedDoneBtn" type="button" class="mini-btn danger">选中设为 done</button>
+          </div>
+          <span id="selectedCount" class="muted">已选 0 项</span>
         </div>
       </section>
 
@@ -192,15 +192,6 @@
         </article>
       </section>
 
-      <section class="panel actions">
-        <h2>快捷操作</h2>
-        <div class="action-row">
-          <button data-action="maintenance">强制维护</button>
-          <button data-action="done-overdue">逾期标记 done</button>
-          <button data-action="delay-overdue">逾期一次性任务延期到今天</button>
-        </div>
-      </section>
-
       <section class="panel-grid">
         <article class="panel">
           <h2>创建一次性任务</h2>
@@ -290,6 +281,14 @@
             </div>
           </form>
         </article>
+      </section>
+
+      <section class="panel actions">
+        <h2>快捷操作</h2>
+        <div class="action-row">
+          <button data-action="done-overdue">逾期标记 done</button>
+          <button data-action="delay-overdue">逾期一次性任务延期到今天</button>
+        </div>
       </section>
 
       <p id="toast" class="toast"></p>
