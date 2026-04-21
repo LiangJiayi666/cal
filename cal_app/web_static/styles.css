@@ -227,8 +227,12 @@ button:hover {
 
 .actions .action-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.actions .action-row > button {
+  width: 100%;
 }
 
 .table-head {
@@ -269,6 +273,18 @@ button:hover {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* In forms, keep the primary/secondary pair full-width and evenly split. */
+.form-stack .inline-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.form-stack .inline-actions > * {
+  width: 100%;
 }
 
 .muted {
