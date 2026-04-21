@@ -16,23 +16,26 @@ const refs = {
   scheduleBody: document.querySelector("#scheduleBody"),
   overdueBody: document.querySelector("#overdueBody"),
   overdueEmpty: document.querySelector("#overdueEmpty"),
-  taskEditForm: document.querySelector("#taskEditForm"),
-  taskEditTitle: document.querySelector("#taskEditTitle"),
-  editTaskId: document.querySelector("#editTaskId"),
-  editTaskKind: document.querySelector("#editTaskKind"),
-  editName: document.querySelector("#editName"),
-  editDescription: document.querySelector("#editDescription"),
-  editOneTimeFields: document.querySelector("#editOneTimeFields"),
-  editRecurringFields: document.querySelector("#editRecurringFields"),
-  editStartDate: document.querySelector("#editStartDate"),
-  editEndDate: document.querySelector("#editEndDate"),
-  editFirstStartDate: document.querySelector("#editFirstStartDate"),
-  editFirstEndDate: document.querySelector("#editFirstEndDate"),
-  editTaskStartDate: document.querySelector("#editTaskStartDate"),
-  editTaskEndDate: document.querySelector("#editTaskEndDate"),
-  editRepeatUnit: document.querySelector("#editRepeatUnit"),
-  editN: document.querySelector("#editN"),
-  cancelTaskEditBtn: document.querySelector("#cancelTaskEditBtn"),
+  editOneTimePanel: document.querySelector("#editOneTimePanel"),
+  editRecurringPanel: document.querySelector("#editRecurringPanel"),
+  editOneTimeForm: document.querySelector("#editOneTimeForm"),
+  editRecurringForm: document.querySelector("#editRecurringForm"),
+  eoTaskId: document.querySelector("#eoTaskId"),
+  eoName: document.querySelector("#eoName"),
+  eoDescription: document.querySelector("#eoDescription"),
+  eoStartDate: document.querySelector("#eoStartDate"),
+  eoEndDate: document.querySelector("#eoEndDate"),
+  erTaskId: document.querySelector("#erTaskId"),
+  erName: document.querySelector("#erName"),
+  erDescription: document.querySelector("#erDescription"),
+  erFirstStartDate: document.querySelector("#erFirstStartDate"),
+  erFirstEndDate: document.querySelector("#erFirstEndDate"),
+  erTaskStartDate: document.querySelector("#erTaskStartDate"),
+  erTaskEndDate: document.querySelector("#erTaskEndDate"),
+  erRepeatUnit: document.querySelector("#erRepeatUnit"),
+  erN: document.querySelector("#erN"),
+  clearEditOneTimeBtn: document.querySelector("#clearEditOneTimeBtn"),
+  clearEditRecurringBtn: document.querySelector("#clearEditRecurringBtn"),
   oneTimeForm: document.querySelector("#oneTimeForm"),
   recurringForm: document.querySelector("#recurringForm"),
   statusFilter: document.querySelector("#statusFilter"),
@@ -88,10 +91,7 @@ function filteredSchedules() {
     if (fromDate && item.end_date < fromDate) return false;
     if (toDate && item.start_date > toDate) return false;
     if (!keyword) return true;
-    return (
-      item.name.toLowerCase().includes(keyword) ||
-      item.task_id.toLowerCase().includes(keyword)
-    );
+    return item.name.toLowerCase().includes(keyword) || item.task_id.toLowerCase().includes(keyword);
   });
 }
 
@@ -164,41 +164,52 @@ function renderOverdue() {
   }
 }
 
+function resetOneTimeEditor() {
+  refs.eoTaskId.value = "";
+  refs.eoName.value = "";
+  refs.eoDescription.value = "";
+  refs.eoStartDate.value = "";
+  refs.eoEndDate.value = "";
+}
+
+function resetRecurringEditor() {
+  refs.erTaskId.value = "";
+  refs.erName.value = "";
+  refs.erDescription.value = "";
+  refs.erFirstStartDate.value = "";
+  refs.erFirstEndDate.value = "";
+  refs.erTaskStartDate.value = "";
+  refs.erTaskEndDate.value = "";
+  refs.erRepeatUnit.value = "day";
+  refs.erN.value = "";
+}
+
 function openTaskEditor(taskId) {
   const task = state.tasks.find((item) => item.task_id === taskId);
   if (!task) {
     toast("任务不存在", "error");
     return;
   }
-  const isRecurring = task.kind === "recurring";
-  refs.taskEditForm.classList.remove("hidden");
-  refs.taskEditTitle.textContent = `编辑任务 ${task.task_id}`;
-  refs.editTaskId.value = task.task_id;
-  refs.editTaskKind.value = task.kind;
-  refs.editName.value = task.name || "";
-  refs.editDescription.value = task.description || "";
-  refs.editOneTimeFields.classList.toggle("hidden", isRecurring);
-  refs.editRecurringFields.classList.toggle("hidden", !isRecurring);
-
-  if (isRecurring) {
-    refs.editFirstStartDate.value = task.first_start_date || "";
-    refs.editFirstEndDate.value = task.first_end_date || "";
-    refs.editTaskStartDate.value = task.task_start_date || "";
-    refs.editTaskEndDate.value = task.task_end_date || "";
-    refs.editRepeatUnit.value = task.repeat_unit || "day";
-    refs.editN.value = task.n || 1;
-  } else {
-    refs.editStartDate.value = task.start_date || "";
-    refs.editEndDate.value = task.end_date || "";
+  if (task.kind === "one_time") {
+    refs.eoTaskId.value = task.task_id;
+    refs.eoName.value = task.name || "";
+    refs.eoDescription.value = task.description || "";
+    refs.eoStartDate.value = task.start_date || "";
+    refs.eoEndDate.value = task.end_date || "";
+    refs.editOneTimePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
   }
 
-  refs.taskEditForm.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function closeTaskEditor() {
-  refs.taskEditForm.classList.add("hidden");
-  refs.taskEditTitle.textContent = "编辑任务";
-  refs.taskEditForm.reset();
+  refs.erTaskId.value = task.task_id;
+  refs.erName.value = task.name || "";
+  refs.erDescription.value = task.description || "";
+  refs.erFirstStartDate.value = task.first_start_date || "";
+  refs.erFirstEndDate.value = task.first_end_date || "";
+  refs.erTaskStartDate.value = task.task_start_date || "";
+  refs.erTaskEndDate.value = task.task_end_date || "";
+  refs.erRepeatUnit.value = task.repeat_unit || "day";
+  refs.erN.value = task.n || 1;
+  refs.editRecurringPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function initFilters(today) {
@@ -218,7 +229,11 @@ async function refresh() {
   state.overdueSchedules = data.overdue;
   state.tasks = data.tasks;
 
-  if (!state.initializedFilters) initFilters(data.today);
+  if (!state.initializedFilters) {
+    initFilters(data.today);
+    resetOneTimeEditor();
+    resetRecurringEditor();
+  }
   renderSchedules();
   renderOverdue();
 }
@@ -256,8 +271,8 @@ async function markSelectedDone() {
 function payloadFromForm(form) {
   const fd = new FormData(form);
   const obj = Object.fromEntries(fd.entries());
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === "") obj[k] = null;
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === "") obj[key] = null;
   }
   obj.is_test = fd.get("is_test") === "on";
   if ("n" in obj && obj.n !== null) obj.n = Number(obj.n);
@@ -288,36 +303,25 @@ refs.recurringForm.addEventListener("submit", async (event) => {
   }
 });
 
-refs.taskEditForm.addEventListener("submit", async (event) => {
+refs.editOneTimeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const taskId = refs.editTaskId.value;
-  const kind = refs.editTaskKind.value;
+  const taskId = refs.eoTaskId.value;
+  if (!taskId) {
+    toast("请先点击一个一次性任务", "warn");
+    return;
+  }
   setBusy(true);
   try {
-    if (kind === "one_time") {
-      await api("/api/tasks/one-time/update", {
-        task_id: taskId,
-        name: refs.editName.value,
-        description: refs.editDescription.value,
-        start_date: refs.editStartDate.value,
-        end_date: refs.editEndDate.value,
-      });
-    } else {
-      await api("/api/tasks/recurring/update", {
-        task_id: taskId,
-        name: refs.editName.value,
-        description: refs.editDescription.value,
-        first_start_date: refs.editFirstStartDate.value,
-        first_end_date: refs.editFirstEndDate.value,
-        task_start_date: refs.editTaskStartDate.value,
-        task_end_date: refs.editTaskEndDate.value,
-        repeat_unit: refs.editRepeatUnit.value,
-        n: Number(refs.editN.value || 1),
-      });
-    }
-    closeTaskEditor();
+    await api("/api/tasks/one-time/update", {
+      task_id: taskId,
+      name: refs.eoName.value,
+      description: refs.eoDescription.value,
+      start_date: refs.eoStartDate.value,
+      end_date: refs.eoEndDate.value,
+    });
     await refresh();
-    toast("任务已更新");
+    openTaskEditor(taskId);
+    toast("一次性任务已更新");
   } catch (error) {
     toast(error.message, "error");
   } finally {
@@ -325,9 +329,38 @@ refs.taskEditForm.addEventListener("submit", async (event) => {
   }
 });
 
-refs.cancelTaskEditBtn.addEventListener("click", () => {
-  closeTaskEditor();
+refs.editRecurringForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const taskId = refs.erTaskId.value;
+  if (!taskId) {
+    toast("请先点击一个周期任务", "warn");
+    return;
+  }
+  setBusy(true);
+  try {
+    await api("/api/tasks/recurring/update", {
+      task_id: taskId,
+      name: refs.erName.value,
+      description: refs.erDescription.value,
+      first_start_date: refs.erFirstStartDate.value,
+      first_end_date: refs.erFirstEndDate.value,
+      task_start_date: refs.erTaskStartDate.value,
+      task_end_date: refs.erTaskEndDate.value,
+      repeat_unit: refs.erRepeatUnit.value,
+      n: Number(refs.erN.value || 1),
+    });
+    await refresh();
+    openTaskEditor(taskId);
+    toast("周期任务已更新");
+  } catch (error) {
+    toast(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
 });
+
+refs.clearEditOneTimeBtn.addEventListener("click", resetOneTimeEditor);
+refs.clearEditRecurringBtn.addEventListener("click", resetRecurringEditor);
 
 document.body.addEventListener("click", async (event) => {
   const button = event.target.closest("button");
@@ -358,13 +391,11 @@ document.body.addEventListener("click", async (event) => {
     renderSchedules();
     return;
   }
-
   if (button.id === "clearSelectedBtn") {
     state.selectedKeys.clear();
     renderSchedules();
     return;
   }
-
   if (button.id === "markSelectedDoneBtn") {
     await markSelectedDone();
     return;

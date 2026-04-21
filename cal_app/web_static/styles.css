@@ -341,6 +341,14 @@ th {
   font-family: "Space Grotesk", sans-serif;
 }
 
+.field-label {
+  display: block;
+  margin: 2px 0 4px;
+  color: var(--subtle);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 .task-edit-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

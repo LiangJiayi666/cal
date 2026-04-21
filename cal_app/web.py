@@ -140,11 +140,19 @@ class CalWebHandler(SimpleHTTPRequestHandler):
     def _service(self) -> CalendarService:
         return CalendarService.default(project_root=PROJECT_ROOT)
 
+    def end_headers(self) -> None:  # noqa: N802
+        # Avoid stale frontend assets (index/app.js/styles.css) being served from browser cache.
+        # This directly fixes cases where the UI keeps showing old placeholders (e.g. Today "-")
+        # because the updated JS never gets loaded.
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=True).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

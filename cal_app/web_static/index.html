@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20260421" />
   </head>
   <body>
     <div class="bg-orb orb-a"></div>
@@ -105,44 +105,89 @@
         <p id="overdueEmpty" class="muted hidden">暂无历史未完成项</p>
       </section>
 
-      <section class="panel">
-        <div class="table-head">
-          <h2>任务修改</h2>
-          <span class="muted">从日程列表点击“编辑任务”可直接跳转到这里</span>
-        </div>
-        <form id="taskEditForm" class="task-edit hidden">
-          <h3 id="taskEditTitle">编辑任务</h3>
-          <input type="hidden" id="editTaskId" />
-          <input type="hidden" id="editTaskKind" />
-          <div class="task-edit-grid">
-            <input id="editName" placeholder="任务名称" required />
-            <input id="editDescription" placeholder="描述（可选）" />
-          </div>
+      <section class="panel-grid">
+        <article class="panel" id="editOneTimePanel">
+          <h2>编辑一次性任务</h2>
+          <form id="editOneTimeForm" class="form-stack">
+            <input type="hidden" id="eoTaskId" />
+            <label class="field-label" for="eoName">任务名称</label>
+            <input id="eoName" placeholder="任务名称" required />
 
-          <div id="editOneTimeFields" class="task-edit-grid hidden">
-            <input id="editStartDate" type="date" />
-            <input id="editEndDate" type="date" />
-          </div>
+            <label class="field-label" for="eoDescription">描述</label>
+            <input id="eoDescription" placeholder="描述（可选）" />
 
-          <div id="editRecurringFields" class="task-edit-grid hidden">
-            <input id="editFirstStartDate" type="date" />
-            <input id="editFirstEndDate" type="date" />
-            <input id="editTaskStartDate" type="date" />
-            <input id="editTaskEndDate" type="date" />
-            <select id="editRepeatUnit">
-              <option value="day">day</option>
-              <option value="week">week</option>
-              <option value="month">month</option>
-              <option value="year">year</option>
-            </select>
-            <input id="editN" type="number" min="1" />
-          </div>
+            <div class="row">
+              <div>
+                <label class="field-label" for="eoStartDate">起始日期</label>
+                <input id="eoStartDate" type="date" required />
+              </div>
+              <div>
+                <label class="field-label" for="eoEndDate">结束日期</label>
+                <input id="eoEndDate" type="date" required />
+              </div>
+            </div>
 
-          <div class="inline-actions">
-            <button type="submit" class="mini-btn">保存修改</button>
-            <button id="cancelTaskEditBtn" type="button" class="mini-btn">取消</button>
-          </div>
-        </form>
+            <div class="inline-actions">
+              <button type="submit" class="mini-btn">保存一次性任务</button>
+              <button id="clearEditOneTimeBtn" type="button" class="mini-btn">清空</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel" id="editRecurringPanel">
+          <h2>编辑周期任务</h2>
+          <form id="editRecurringForm" class="form-stack">
+            <input type="hidden" id="erTaskId" />
+            <label class="field-label" for="erName">任务名称</label>
+            <input id="erName" placeholder="任务名称" required />
+
+            <label class="field-label" for="erDescription">描述</label>
+            <input id="erDescription" placeholder="描述（可选）" />
+
+            <div class="row">
+              <div>
+                <label class="field-label" for="erFirstStartDate">首次起始日期</label>
+                <input id="erFirstStartDate" type="date" required />
+              </div>
+              <div>
+                <label class="field-label" for="erFirstEndDate">首次结束日期</label>
+                <input id="erFirstEndDate" type="date" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label class="field-label" for="erTaskStartDate">任务起始日期</label>
+                <input id="erTaskStartDate" type="date" />
+              </div>
+              <div>
+                <label class="field-label" for="erTaskEndDate">任务结束日期</label>
+                <input id="erTaskEndDate" type="date" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label class="field-label" for="erRepeatUnit">重复单位</label>
+                <select id="erRepeatUnit">
+                  <option value="day">day</option>
+                  <option value="week">week</option>
+                  <option value="month">month</option>
+                  <option value="year">year</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="erN">间隔次数</label>
+                <input id="erN" type="number" min="1" required />
+              </div>
+            </div>
+
+            <div class="inline-actions">
+              <button type="submit" class="mini-btn">保存周期任务</button>
+              <button id="clearEditRecurringBtn" type="button" class="mini-btn">清空</button>
+            </div>
+          </form>
+        </article>
       </section>
 
       <section class="panel actions">
@@ -158,12 +203,23 @@
         <article class="panel">
           <h2>一次性任务</h2>
           <form id="oneTimeForm" class="form-stack">
-            <input name="name" placeholder="任务名称" required />
-            <textarea name="description" placeholder="描述（可选）"></textarea>
+            <label class="field-label" for="createOneName">任务名称</label>
+            <input id="createOneName" name="name" placeholder="任务名称" required />
+
+            <label class="field-label" for="createOneDesc">描述</label>
+            <textarea id="createOneDesc" name="description" placeholder="描述（可选）"></textarea>
+
             <div class="row">
-              <input name="start_date" type="date" required />
-              <input name="end_date" type="date" required />
+              <div>
+                <label class="field-label" for="createOneStart">起始日期</label>
+                <input id="createOneStart" name="start_date" type="date" required />
+              </div>
+              <div>
+                <label class="field-label" for="createOneEnd">结束日期</label>
+                <input id="createOneEnd" name="end_date" type="date" required />
+              </div>
             </div>
+
             <label class="check">
               <input name="is_test" type="checkbox" />
               <span>测试任务</span>
@@ -175,25 +231,50 @@
         <article class="panel">
           <h2>周期任务</h2>
           <form id="recurringForm" class="form-stack">
-            <input name="name" placeholder="任务名称" required />
-            <textarea name="description" placeholder="描述（可选）"></textarea>
+            <label class="field-label" for="createRecName">任务名称</label>
+            <input id="createRecName" name="name" placeholder="任务名称" required />
+
+            <label class="field-label" for="createRecDesc">描述</label>
+            <textarea id="createRecDesc" name="description" placeholder="描述（可选）"></textarea>
+
             <div class="row">
-              <input name="first_start_date" type="date" required />
-              <input name="first_end_date" type="date" required />
+              <div>
+                <label class="field-label" for="createFirstStart">首次起始日期</label>
+                <input id="createFirstStart" name="first_start_date" type="date" required />
+              </div>
+              <div>
+                <label class="field-label" for="createFirstEnd">首次结束日期</label>
+                <input id="createFirstEnd" name="first_end_date" type="date" required />
+              </div>
             </div>
+
             <div class="row">
-              <select name="repeat_unit">
-                <option value="day">每天</option>
-                <option value="week">每周</option>
-                <option value="month">每月</option>
-                <option value="year">每年</option>
-              </select>
-              <input name="n" type="number" min="1" value="1" required />
+              <div>
+                <label class="field-label" for="createRepeatUnit">重复单位</label>
+                <select id="createRepeatUnit" name="repeat_unit">
+                  <option value="day">每天</option>
+                  <option value="week">每周</option>
+                  <option value="month">每月</option>
+                  <option value="year">每年</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="createInterval">间隔次数</label>
+                <input id="createInterval" name="n" type="number" min="1" value="1" required />
+              </div>
             </div>
+
             <div class="row">
-              <input name="task_start_date" type="date" />
-              <input name="task_end_date" type="date" />
+              <div>
+                <label class="field-label" for="createTaskStart">任务起始日期</label>
+                <input id="createTaskStart" name="task_start_date" type="date" />
+              </div>
+              <div>
+                <label class="field-label" for="createTaskEnd">任务结束日期</label>
+                <input id="createTaskEnd" name="task_end_date" type="date" />
+              </div>
             </div>
+
             <label class="check">
               <input name="is_test" type="checkbox" />
               <span>测试任务</span>
@@ -205,6 +286,6 @@
 
       <p id="toast" class="toast"></p>
     </main>
-    <script src="/app.js" defer></script>
+    <script src="/app.js?v=20260421" defer></script>
   </body>
 </html>
