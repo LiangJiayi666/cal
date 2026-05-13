@@ -1,0 +1,5 @@
+[project]
+name = "cal-cli"
+version = "0.1.0"
+description = "Task pool + schedule pool CLI calendar."
+requires-python = ">=3.10"
